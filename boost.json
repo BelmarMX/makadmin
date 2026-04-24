@@ -1,12 +1,13 @@
 {
     "agents": [
-        "junie",
-        "claude_code",
-        "kiro"
+        "claude_code"
     ],
     "guidelines": true,
     "mcp": true,
     "nightwatch_mcp": false,
+    "packages": [
+        "spatie/laravel-permission"
+    ],
     "sail": false,
     "skills": [
         "fortify-development",
@@ -14,6 +15,8 @@
         "wayfinder-development",
         "pest-testing",
         "inertia-vue-development",
-        "tailwindcss-development"
+        "echo-development",
+        "tailwindcss-development",
+        "laravel-permission-development"
     ]
 }

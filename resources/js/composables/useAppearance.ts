@@ -15,19 +15,14 @@ export function updateTheme(value: Appearance): void {
         return;
     }
 
-    if (value === 'system') {
-        const mediaQueryList = window.matchMedia(
-            '(prefers-color-scheme: dark)',
-        );
-        const systemTheme = mediaQueryList.matches ? 'dark' : 'light';
+    const isDark =
+        value === 'system'
+            ? window.matchMedia('(prefers-color-scheme: dark)').matches
+            : value === 'dark';
 
-        document.documentElement.classList.toggle(
-            'dark',
-            systemTheme === 'dark',
-        );
-    } else {
-        document.documentElement.classList.toggle('dark', value === 'dark');
-    }
+    // Dark is :root default; .light overrides to light theme, .dark forces dark explicitly
+    document.documentElement.classList.toggle('light', !isDark);
+    document.documentElement.classList.toggle('dark', isDark);
 }
 
 const setCookie = (name: string, value: string, days = 365) => {

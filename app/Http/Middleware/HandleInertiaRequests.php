@@ -38,6 +38,13 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'branding' => [
+                'apexDomain' => config('branding.apex_domain'),
+                'publicSubdomain' => config('branding.public_subdomain'),
+                'superadminSubdomain' => config('branding.superadmin_subdomain'),
+                'portalSubdomain' => config('branding.portal_subdomain'),
+                'scheme' => config('branding.scheme'),
+            ],
             'auth' => [
                 'user' => $request->user(),
             ],

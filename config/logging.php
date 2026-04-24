@@ -127,6 +127,20 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'controlled_drugs' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/controlled-drugs.log'),
+            'level' => 'info',
+            'days' => 1825,
+        ],
+
+        'security' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/security.log'),
+            'level' => 'info',
+            'days' => 365,
+        ],
+
     ],
 
 ];

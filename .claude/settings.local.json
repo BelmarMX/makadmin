@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__laravel-boost__application-info",
+      "mcp__laravel-boost__database-schema",
+      "Bash(composer require *)",
+      "Bash(npm install *)",
+      "Bash(php artisan *)",
+      "Bash(vendor/bin/phpstan analyse *)",
+      "Bash(vendor/bin/pint --test)",
+      "Bash(npm run *)",
+      "Bash(vendor/bin/pint app/Support/Tenancy/Scopes/)",
+      "mcp__laravel-boost__browser-logs",
+      "Bash(python3 -c \"import sys,json; routes=json.load\\(sys.stdin\\); [print\\(r.get\\('domain',''\\), r['uri'], r.get\\('name',''\\)\\) for r in routes if r.get\\('name',''\\) in \\('admin.dashboard','clinic.dashboard'\\)]\")",
+      "Bash(python3 -c \"import sys,json; routes=json.load\\(sys.stdin\\); [print\\(r.get\\('domain',''\\), r['uri'], r.get\\('name',''\\)\\) for r in routes if r.get\\('name',''\\) in \\('admin.dashboard','clinic.dashboard','home','dashboard'\\)]\")",
+      "Bash(npx shadcn-vue@latest add switch tabs table textarea --yes)",
+      "Bash(grep -v \"^$\")",
+      "Bash(python3 -c \"import sys,json; routes=json.load\\(sys.stdin\\); [print\\(r['method'], r['uri'], r['name']\\) for r in routes]\")",
+      "Bash(python3 -c \"import sys,json; data=json.loads\\(sys.stdin.read\\(\\)\\); print\\('RESULT:', data['result']\\); [print\\(f['message'][:200]\\) for f in data.get\\('failures',[]\\)[:3]]; [print\\(f['message'][:200]\\) for f in data.get\\('error_details',[]\\)[:3]]\")",
+      "Bash(vendor/bin/pint --dirty --format agent)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "laravel-boost"
+  ]
+}

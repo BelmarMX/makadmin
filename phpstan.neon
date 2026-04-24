@@ -1,0 +1,13 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app/
+    level: 6
+    ignoreErrors:
+        - '#passwordRules\(\) should return array.*but returns array#'
+        - identifier: trait.unused
+          path: app/Support/Tenancy/BelongsToClinicOrGlobal.php
+        - identifier: missingType.generics
+    excludePaths: []
