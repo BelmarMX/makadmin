@@ -1,0 +1,36 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('pet_sizes', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('clinic_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->string('name');
+            $table->decimal('weight_min_kg', 6, 2)->nullable();
+            $table->decimal('weight_max_kg', 6, 2)->nullable();
+            $table->integer('sort_order')->default(100);
+            $table->boolean('is_system')->default(false);
+            $table->boolean('is_active')->default(true);
+            $table->softDeletes();
+            $table->timestamps();
+            $table->index(['clinic_id', 'is_active']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('pet_sizes');
+    }
+};

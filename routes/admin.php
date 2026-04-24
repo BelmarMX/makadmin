@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\CatalogController as AdminCatalogController;
 use App\Http\Controllers\Admin\ClinicAdminController;
 use App\Http\Controllers\Admin\ClinicBranchController;
 use App\Http\Controllers\Admin\ClinicController;
@@ -8,6 +9,13 @@ use App\Http\Controllers\Admin\ClinicModuleController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+
+Route::prefix('catalog')->name('admin.catalog.')->group(function () {
+    Route::get('/', [AdminCatalogController::class, 'index'])->name('index');
+    Route::post('/', [AdminCatalogController::class, 'store'])->name('store');
+    Route::put('/{id}', [AdminCatalogController::class, 'update'])->name('update');
+    Route::delete('/{id}', [AdminCatalogController::class, 'destroy'])->name('destroy');
+});
 
 Route::prefix('clinics')->name('admin.clinics.')->group(function () {
     Route::get('/', [ClinicController::class, 'index'])->name('index');
@@ -27,4 +35,5 @@ Route::prefix('clinics')->name('admin.clinics.')->group(function () {
     Route::post('/{clinic}/modules/{module}/toggle', [ClinicModuleController::class, 'toggle'])->name('modules.toggle');
 
     Route::post('/{clinic}/invite-admin', [ClinicAdminController::class, 'invite'])->name('invite-admin');
+    Route::post('/{clinic}/users/{user}/verify-email', [ClinicAdminController::class, 'verifyEmail'])->name('users.verify-email');
 });

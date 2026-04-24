@@ -25,7 +25,7 @@ class StoreClinicRequest extends FormRequest
             ],
             'legal_name' => ['required', 'string', 'max:200'],
             'commercial_name' => ['required', 'string', 'max:200'],
-            'rfc' => ['nullable', 'string', 'size:13', 'regex:/^[A-ZÑ&]{3,4}\d{6}[A-Z\d]{3}$/i'],
+            'rfc' => ['nullable', 'string', 'min:12', 'max:13', 'regex:/^[A-ZÑ&]{3,4}\d{6}[A-Z\d]{2,3}$/i'],
             'fiscal_regime' => ['nullable', Rule::enum(FiscalRegime::class)],
             'tax_address' => ['nullable', 'string', 'max:500'],
             'responsible_vet_name' => ['required', 'string', 'max:200'],

@@ -1,0 +1,13 @@
+d_codigo|d_asenta|d_tipo_asenta|D_mnpio|d_estado|d_ciudad|d_CP|c_estado|c_oficina|c_CP|c_tipo_asenta|c_mnpio|id_asenta_cpcons|d_zona|c_cve_ciudad
+20000|Centro|Colonia|Aguascalientes|Aguascalientes|Aguascalientes|20001|01|20001|20000|09|001|0001|Urbano|01
+20000|Alameda|Colonia|Aguascalientes|Aguascalientes|Aguascalientes|20001|01|20001|20000|09|001|0002|Urbano|01
+20010|Las Américas|Fraccionamiento|Aguascalientes|Aguascalientes|Aguascalientes|20001|01|20001|20010|21|001|0003|Urbano|01
+20020|Jardines de la Asunción|Fraccionamiento|Aguascalientes|Aguascalientes|Aguascalientes|20001|01|20001|20020|21|001|0004|Urbano|01
+20030|La Salud|Colonia|Aguascalientes|Aguascalientes|Aguascalientes|20001|01|20001|20030|09|001|0005|Urbano|01
+20040|Insurgentes|Colonia|Aguascalientes|Aguascalientes|Aguascalientes|20001|01|20001|20040|09|001|0006|Urbano|01
+20050|Ojocaliente I|Colonia|Aguascalientes|Aguascalientes|Aguascalientes|20001|01|20001|20050|09|001|0007|Urbano|01
+20060|Lomas del Campestre|Fraccionamiento|Aguascalientes|Aguascalientes|Aguascalientes|20001|01|20001|20060|21|001|0008|Urbano|01
+20070|Ferronales|Colonia|Aguascalientes|Aguascalientes|Aguascalientes|20001|01|20001|20070|09|001|0009|Urbano|01
+20080|Los Pinos|Fraccionamiento|Aguascalientes|Aguascalientes|Aguascalientes|20001|01|20001|20080|21|001|0010|Urbano|01
+MUNICIPIO_NO_EXISTE|Sin colonia|Colonia|MunicipioInvalido|Aguascalientes|||||||||||||
+20090|Pocitos|Colonia|Aguascalientes|Aguascalientes|Aguascalientes|20001|01|20001|20090|09|001|0011|Urbano|01

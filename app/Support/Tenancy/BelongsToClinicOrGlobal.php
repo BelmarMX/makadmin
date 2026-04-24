@@ -34,8 +34,16 @@ trait BelongsToClinicOrGlobal
             throw new \RuntimeException('asGlobal requires super admin');
         }
 
-        return (new static)->newQueryWithoutScopes()->tap(function ($query) {
-            $query->getModel()->clinic_id = null;
-        });
+        return static::query()->withoutGlobalScope(ClinicOrGlobalScope::class);
+    }
+
+    public function isSystem(): bool
+    {
+        return (bool) $this->is_system;
+    }
+
+    public function isGlobal(): bool
+    {
+        return is_null($this->clinic_id);
     }
 }

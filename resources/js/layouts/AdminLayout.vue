@@ -1,17 +1,30 @@
 <script setup lang="ts">
-import { usePage } from '@inertiajs/vue3';
+import AppContent from '@/components/AppContent.vue';
+import AppShell from '@/components/AppShell.vue';
+import AppSidebar from '@/components/AppSidebar.vue';
+import AppSidebarHeader from '@/components/AppSidebarHeader.vue';
+import { Toaster } from '@/components/ui/sonner';
+import type { BreadcrumbItem } from '@/types';
 
-const page = usePage();
+withDefaults(
+    defineProps<{
+        breadcrumbs?: BreadcrumbItem[];
+    }>(),
+    {
+        breadcrumbs: () => [],
+    },
+);
 </script>
 
 <template>
-    <div class="min-h-screen bg-background text-foreground">
-        <header class="border-b border-border px-6 py-4 flex items-center justify-between">
-            <span class="font-semibold text-primary">Makadmin — Admin</span>
-            <span class="text-sm text-muted-foreground">{{ page.props.auth?.user?.email }}</span>
-        </header>
-        <main class="p-6">
-            <slot />
-        </main>
-    </div>
+    <AppShell variant="sidebar">
+        <AppSidebar />
+        <AppContent variant="sidebar" class="overflow-x-hidden">
+            <AppSidebarHeader :breadcrumbs="breadcrumbs" />
+            <div class="flex flex-1 flex-col gap-4 p-4">
+                <slot />
+            </div>
+        </AppContent>
+        <Toaster />
+    </AppShell>
 </template>

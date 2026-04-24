@@ -19,13 +19,13 @@ const props = defineProps<{
 
 <template>
     <div class="space-y-5">
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-4 xl:grid-cols-4">
             <div class="space-y-2">
                 <Label for="rfc">RFC</Label>
                 <Input id="rfc" v-model="props.form.rfc" placeholder="XAXX010101000" class="uppercase" />
                 <p v-if="props.form.errors.rfc" class="text-xs text-destructive">{{ props.form.errors.rfc }}</p>
             </div>
-            <div class="space-y-2">
+            <div class="space-y-2 xl:col-span-2">
                 <Label for="fiscal_regime">Régimen fiscal</Label>
                 <Select v-model="props.form.fiscal_regime">
                     <SelectTrigger id="fiscal_regime">
@@ -45,8 +45,8 @@ const props = defineProps<{
             <Textarea id="tax_address" v-model="props.form.tax_address" placeholder="Calle, número, colonia, C.P., ciudad, estado" :rows="2" />
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
-            <div class="space-y-2">
+        <div class="grid grid-cols-2 gap-4 xl:grid-cols-3">
+            <div class="space-y-2 xl:col-span-2">
                 <Label for="responsible_vet_name">Médico responsable <span class="text-destructive">*</span></Label>
                 <Input id="responsible_vet_name" v-model="props.form.responsible_vet_name" placeholder="Dr. Juan Pérez López" />
                 <p v-if="props.form.errors.responsible_vet_name" class="text-xs text-destructive">{{ props.form.errors.responsible_vet_name }}</p>

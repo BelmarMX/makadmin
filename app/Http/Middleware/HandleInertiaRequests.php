@@ -48,7 +48,25 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'context' => $this->resolveContext($request),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
+    }
+
+    private function resolveContext(Request $request): string
+    {
+        $host = $request->getHost();
+        $superadmin = config('branding.superadmin_subdomain').'.'.config('branding.apex_domain');
+        $apex = config('branding.apex_domain');
+
+        if ($host === $superadmin) {
+            return 'admin';
+        }
+
+        if ($host !== $apex && str_ends_with($host, '.'.$apex)) {
+            return 'clinic';
+        }
+
+        return 'app';
     }
 }

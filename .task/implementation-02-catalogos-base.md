@@ -590,4 +590,38 @@ const ARCHIVE = 'catalog.archive';
 
 ## 14. Resultado
 
-> Sección a llenar al finalizar.
+**Completado: 2026-04-24**
+
+### Cambios realizados
+
+**Migraciones:**
+- Renombrada `2026_04_23_221737_create_species_table.php` → `2026_04_23_221736_create_species_table.php` para garantizar que corra antes de `breeds` (misma marca de tiempo, orden alfabético).
+- Todas las tablas creadas: `countries`, `states`, `municipalities`, `postal_codes`, `species`, `breeds`, `pelage_colors`, `pet_sizes`, `temperaments`.
+
+**Seeders ejecutados:**
+- 1 país (México), 32 estados, 51 municipios (fallback — sin `database/data/municipalities.php`), 9 especies, 64 razas, 14 colores, 5 tamaños, 10 temperamentos.
+
+**Frontend:**
+- Creado `resources/js/pages/Admin/Catalog/TemperamentsManager.vue`.
+- Creados `resources/js/components/catalog/`: `BaseCatalogCombobox.vue`, `SpeciesSelect.vue`, `BreedSelect.vue`, `PelageColorSelect.vue`, `PetSizeSelect.vue`, `TemperamentSelect.vue`, `StateSelect.vue`, `MunicipalitySelect.vue`, `PostalCodeCombobox.vue`.
+
+**Backend:**
+- `CatalogController` (API) usa helper `like()` que devuelve `ilike` en PostgreSQL y `like` en SQLite (tests).
+- PHPStan: corregidas firmas de tipo en `SyncSepomexAction::parseLine()` y `VeterinaryCatalogPolicy`. Eliminados ignore patterns obsoletos de `phpstan.neon`.
+
+**Tests:** 24 pasaron, 1 skip (ilike case-insensitive — solo PostgreSQL).
+
+### Criterios cumplidos
+- [x] Migraciones y seeders funcionan con `migrate:fresh --seed`.
+- [x] Endpoints `/api/catalog/*` operativos.
+- [x] Superadmin puede gestionar catálogo base desde UI.
+- [x] `catalog:sync-sepomex` funciona con fixture de prueba.
+- [x] Tests pasan (`php artisan test`).
+- [x] `vendor/bin/pint --test` pasa.
+- [x] `vendor/bin/phpstan analyse` nivel 6 pasa.
+- [x] `npm run build` y `npm run types:check` pasan.
+
+### Pendiente post-MVP
+- Cargar `database/data/municipalities.php` completo (2,475 municipios desde INEGI).
+- UI de clínica: `/configuracion/catalogos` (task separada).
+- Test de búsqueda case-insensitive requiere PostgreSQL en CI.

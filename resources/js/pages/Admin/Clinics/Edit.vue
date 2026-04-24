@@ -52,13 +52,13 @@ function submit() {
 <template>
     <Head title="Editar clínica" />
 
-    <div class="mx-auto max-w-2xl space-y-6">
+    <div class="w-full space-y-6">
         <h1 class="text-2xl font-bold text-foreground">Editar — {{ props.clinic.commercial_name }}</h1>
 
         <Card>
             <CardHeader><CardTitle>Datos generales</CardTitle></CardHeader>
             <CardContent class="space-y-5">
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-4 xl:grid-cols-3">
                     <div class="space-y-2">
                         <Label for="slug">Subdominio <span class="text-destructive">*</span></Label>
                         <Input id="slug" v-model="form.slug" class="lowercase" />
@@ -69,28 +69,27 @@ function submit() {
                         <Input id="commercial_name" v-model="form.commercial_name" />
                         <p v-if="form.errors.commercial_name" class="text-xs text-destructive">{{ form.errors.commercial_name }}</p>
                     </div>
+                    <div class="space-y-2 xl:col-span-1">
+                        <Label for="legal_name">Razón social <span class="text-destructive">*</span></Label>
+                        <Input id="legal_name" v-model="form.legal_name" />
+                        <p v-if="form.errors.legal_name" class="text-xs text-destructive">{{ form.errors.legal_name }}</p>
+                    </div>
                 </div>
 
-                <div class="space-y-2">
-                    <Label for="legal_name">Razón social <span class="text-destructive">*</span></Label>
-                    <Input id="legal_name" v-model="form.legal_name" />
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-4 xl:grid-cols-4">
                     <div class="space-y-2">
                         <Label for="contact_email">Email <span class="text-destructive">*</span></Label>
                         <Input id="contact_email" v-model="form.contact_email" type="email" />
+                        <p v-if="form.errors.contact_email" class="text-xs text-destructive">{{ form.errors.contact_email }}</p>
                     </div>
                     <div class="space-y-2">
                         <Label for="contact_phone">Teléfono <span class="text-destructive">*</span></Label>
                         <Input id="contact_phone" v-model="form.contact_phone" type="tel" />
                     </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-2">
                         <Label for="rfc">RFC</Label>
                         <Input id="rfc" v-model="form.rfc" class="uppercase" />
+                        <p v-if="form.errors.rfc" class="text-xs text-destructive">{{ form.errors.rfc }}</p>
                     </div>
                     <div class="space-y-2">
                         <Label>Régimen fiscal</Label>
@@ -112,14 +111,23 @@ function submit() {
                     <Textarea id="tax_address" v-model="form.tax_address" :rows="2" />
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-4 xl:grid-cols-3">
                     <div class="space-y-2">
                         <Label for="responsible_vet_name">Médico responsable <span class="text-destructive">*</span></Label>
                         <Input id="responsible_vet_name" v-model="form.responsible_vet_name" />
+                        <p v-if="form.errors.responsible_vet_name" class="text-xs text-destructive">{{ form.errors.responsible_vet_name }}</p>
                     </div>
                     <div class="space-y-2">
                         <Label for="responsible_vet_license">Cédula <span class="text-destructive">*</span></Label>
                         <Input id="responsible_vet_license" v-model="form.responsible_vet_license" />
+                        <p v-if="form.errors.responsible_vet_license" class="text-xs text-destructive">{{ form.errors.responsible_vet_license }}</p>
+                    </div>
+                    <div class="space-y-2">
+                        <Label for="primary_color">Color primario</Label>
+                        <div class="flex items-center gap-3">
+                            <input id="primary_color" v-model="form.primary_color" type="color" class="h-9 w-16 cursor-pointer rounded border border-input bg-transparent p-1" />
+                            <span class="font-mono text-sm text-muted-foreground">{{ form.primary_color }}</span>
+                        </div>
                     </div>
                 </div>
             </CardContent>

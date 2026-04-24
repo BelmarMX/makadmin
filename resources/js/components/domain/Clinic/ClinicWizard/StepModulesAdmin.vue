@@ -36,7 +36,7 @@ function toggleModule(key: string, checked: boolean) {
         <div>
             <p class="mb-3 font-medium text-foreground">Módulos a activar <span class="text-destructive">*</span></p>
             <p v-if="props.form.errors.modules" class="mb-2 text-xs text-destructive">{{ props.form.errors.modules }}</p>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-1 gap-2 md:grid-cols-2 2xl:grid-cols-4">
                 <label
                     v-for="m in props.modules"
                     :key="m.key"

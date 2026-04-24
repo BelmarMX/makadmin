@@ -17,7 +17,14 @@
       "Bash(grep -v \"^$\")",
       "Bash(python3 -c \"import sys,json; routes=json.load\\(sys.stdin\\); [print\\(r['method'], r['uri'], r['name']\\) for r in routes]\")",
       "Bash(python3 -c \"import sys,json; data=json.loads\\(sys.stdin.read\\(\\)\\); print\\('RESULT:', data['result']\\); [print\\(f['message'][:200]\\) for f in data.get\\('failures',[]\\)[:3]]; [print\\(f['message'][:200]\\) for f in data.get\\('error_details',[]\\)[:3]]\")",
-      "Bash(vendor/bin/pint --dirty --format agent)"
+      "Bash(vendor/bin/pint --dirty --format agent)",
+      "Bash(vendor/bin/pint --dirty)",
+      "Bash(rg max-w- *)",
+      "mcp__plugin_claude-mem_mcp-search__get_observations",
+      "Bash(rg \"catalog\" /Volumes/Thunder/www/makadmin/routes/ --include=\"*.php\" -l)",
+      "Bash(rg \"catalog\" /Volumes/Thunder/www/makadmin/routes/ --include=\"*.php\" -n)",
+      "Bash(rg \"SyncSepomexCommand\\\\|catalog:sync\" /Volumes/Thunder/www/makadmin/bootstrap/ -rn)",
+      "mcp__laravel-boost__database-query"
     ]
   },
   "enableAllProjectMcpServers": true,

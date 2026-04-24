@@ -10,10 +10,13 @@ export interface BrandingSharedData {
     scheme: string;
 }
 
+export type AppContext = 'admin' | 'clinic' | 'app';
+
 export interface SharedPageProps {
     name: string;
     branding: BrandingSharedData;
     auth: import('./auth').Auth;
+    context: AppContext;
     sidebarOpen: boolean;
     [key: string]: unknown;
 }

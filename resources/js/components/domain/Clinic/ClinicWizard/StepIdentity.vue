@@ -37,20 +37,20 @@ const subdomainPreview = computed(() => props.form.slug ? `${props.form.slug}.${
             <p v-if="props.form.errors.slug" class="text-xs text-destructive">{{ props.form.errors.slug }}</p>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-4 xl:grid-cols-3">
             <div class="space-y-2">
                 <Label for="commercial_name">Nombre comercial <span class="text-destructive">*</span></Label>
                 <Input id="commercial_name" v-model="props.form.commercial_name" placeholder="Clínica Veterinaria XYZ" />
                 <p v-if="props.form.errors.commercial_name" class="text-xs text-destructive">{{ props.form.errors.commercial_name }}</p>
             </div>
-            <div class="space-y-2">
+            <div class="space-y-2 xl:col-span-2">
                 <Label for="legal_name">Razón social <span class="text-destructive">*</span></Label>
                 <Input id="legal_name" v-model="props.form.legal_name" placeholder="XYZ Servicios Veterinarios S.A. de C.V." />
                 <p v-if="props.form.errors.legal_name" class="text-xs text-destructive">{{ props.form.errors.legal_name }}</p>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-4 xl:grid-cols-3">
             <div class="space-y-2">
                 <Label for="contact_email">Email de contacto <span class="text-destructive">*</span></Label>
                 <Input id="contact_email" v-model="props.form.contact_email" type="email" />
@@ -61,14 +61,14 @@ const subdomainPreview = computed(() => props.form.slug ? `${props.form.slug}.${
                 <Input id="contact_phone" v-model="props.form.contact_phone" type="tel" placeholder="+52 55 1234 5678" />
                 <p v-if="props.form.errors.contact_phone" class="text-xs text-destructive">{{ props.form.errors.contact_phone }}</p>
             </div>
-        </div>
-
-        <div class="space-y-2">
-            <Label for="primary_color">Color primario</Label>
-            <div class="flex items-center gap-3">
-                <input id="primary_color" v-model="props.form.primary_color" type="color" class="h-9 w-16 cursor-pointer rounded border border-input bg-transparent p-1" />
-                <span class="text-sm font-mono text-muted-foreground">{{ props.form.primary_color || '#3b82f6' }}</span>
+            <div class="space-y-2">
+                <Label for="primary_color">Color primario</Label>
+                <div class="flex items-center gap-3 pt-1">
+                    <input id="primary_color" v-model="props.form.primary_color" type="color" class="h-9 w-16 cursor-pointer rounded border border-input bg-transparent p-1" />
+                    <span class="font-mono text-sm text-muted-foreground">{{ props.form.primary_color || '#3b82f6' }}</span>
+                </div>
             </div>
         </div>
+
     </div>
 </template>

@@ -14,22 +14,34 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreClinicRequest;
 use App\Http\Requests\Admin\UpdateClinicRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ClinicController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $this->authorize('viewAny', Clinic::class);
 
+        $search = $request->string('search')->trim()->toString();
+
         $clinics = Clinic::withTrashed()
             ->with(['branches' => fn ($q) => $q->where('is_main', true), 'modules'])
+            ->when($search !== '', fn ($q) => $q->where(fn ($q) => $q
+                ->where('commercial_name', 'ilike', "%{$search}%")
+                ->orWhere('legal_name', 'ilike', "%{$search}%")
+                ->orWhere('contact_email', 'ilike', "%{$search}%")
+                ->orWhere('contact_phone', 'ilike', "%{$search}%")
+                ->orWhere('slug', 'ilike', "%{$search}%")
+            ))
             ->orderByDesc('created_at')
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString();
 
         return Inertia::render('Admin/Clinics/Index', [
             'clinics' => $clinics,
+            'filters' => ['search' => $search],
         ]);
     }
 

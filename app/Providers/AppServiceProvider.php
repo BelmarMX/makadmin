@@ -3,6 +3,13 @@
 namespace App\Providers;
 
 use App\Contracts\Integrations\MediaStorage;
+use App\Domain\Catalog\Geographic\Commands\SyncSepomexCommand;
+use App\Domain\Catalog\Veterinary\Models\Breed;
+use App\Domain\Catalog\Veterinary\Models\PelageColor;
+use App\Domain\Catalog\Veterinary\Models\PetSize;
+use App\Domain\Catalog\Veterinary\Models\Species;
+use App\Domain\Catalog\Veterinary\Models\Temperament;
+use App\Domain\Catalog\Veterinary\Policies\VeterinaryCatalogPolicy;
 use App\Domain\Clinic\Events\ClinicActivated;
 use App\Domain\Clinic\Events\ClinicCreated;
 use App\Domain\Clinic\Events\ClinicDeactivated;
@@ -28,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(MediaStorage::class, LocalMediaStorage::class);
+        $this->commands([SyncSepomexCommand::class]);
     }
 
     public function boot(): void
@@ -53,6 +61,11 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(Clinic::class, ClinicPolicy::class);
         Gate::policy(ClinicBranch::class, ClinicBranchPolicy::class);
+        Gate::policy(Species::class, VeterinaryCatalogPolicy::class);
+        Gate::policy(Breed::class, VeterinaryCatalogPolicy::class);
+        Gate::policy(PelageColor::class, VeterinaryCatalogPolicy::class);
+        Gate::policy(PetSize::class, VeterinaryCatalogPolicy::class);
+        Gate::policy(Temperament::class, VeterinaryCatalogPolicy::class);
     }
 
     protected function registerEvents(): void

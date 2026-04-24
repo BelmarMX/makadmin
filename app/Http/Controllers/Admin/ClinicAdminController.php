@@ -7,6 +7,7 @@ use App\Domain\Clinic\DataTransferObjects\ClinicAdminInvitationData;
 use App\Domain\Clinic\Models\Clinic;
 use App\Domain\Clinic\Models\ClinicBranch;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -35,5 +36,18 @@ class ClinicAdminController extends Controller
         );
 
         return back()->with('success', "Invitación enviada a {$validated['email']}.");
+    }
+
+    public function verifyEmail(Clinic $clinic, User $user): RedirectResponse
+    {
+        $this->authorize('update', $clinic);
+
+        abort_unless((bool) request()->user()?->is_super_admin, 403);
+        abort_unless($user->clinic_id === $clinic->id, 403);
+
+        $user->email_verified_at = now();
+        $user->save();
+
+        return back()->with('success', "Email de {$user->email} marcado como verificado.");
     }
 }
