@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Settings;
 
+use App\Actions\UploadUserAvatarAction;
+use App\Contracts\Integrations\MediaStorage;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileDeleteRequest;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Http\Requests\UploadImageRequest;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -41,6 +44,26 @@ class ProfileController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Profile updated.')]);
 
         return to_route('profile.edit');
+    }
+
+    public function uploadAvatar(UploadImageRequest $request, UploadUserAvatarAction $action): RedirectResponse
+    {
+        $action->handle($request->user(), $request->file('image'));
+
+        return back()->with('status', 'avatar-updated');
+    }
+
+    public function destroyAvatar(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        if ($user->avatar_path) {
+            app(MediaStorage::class)->delete($user->avatar_path);
+            $user->avatar_path = null;
+            $user->save();
+        }
+
+        return back()->with('status', 'avatar-removed');
     }
 
     /**
