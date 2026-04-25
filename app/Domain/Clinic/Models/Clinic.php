@@ -2,6 +2,7 @@
 
 namespace App\Domain\Clinic\Models;
 
+use App\Contracts\Integrations\MediaStorage;
 use App\Domain\Clinic\Enums\FiscalRegime;
 use App\Models\User;
 use Database\Factories\ClinicFactory;
@@ -53,10 +54,22 @@ class Clinic extends Model implements Auditable
         ];
     }
 
+    /** @var list<string> */
+    protected $appends = ['logo_url'];
+
     protected function subdomainUrl(): Attribute
     {
         return Attribute::make(
             get: fn () => config('branding.scheme').'://'.$this->slug.'.'.config('branding.apex_domain'),
+        );
+    }
+
+    protected function logoUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->logo_path
+                ? app(MediaStorage::class)->url($this->logo_path)
+                : null,
         );
     }
 

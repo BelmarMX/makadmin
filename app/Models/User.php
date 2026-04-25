@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Contracts\Integrations\MediaStorage;
 use App\Domain\Clinic\Models\Clinic;
 use App\Domain\Clinic\Models\ClinicBranch;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -64,6 +66,18 @@ class User extends Authenticatable implements Auditable
     public function canBeImpersonated(): bool
     {
         return ! $this->is_super_admin;
+    }
+
+    /** @var list<string> */
+    protected $appends = ['avatar'];
+
+    protected function avatar(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->avatar_path
+                ? app(MediaStorage::class)->url($this->avatar_path)
+                : null,
+        );
     }
 
     public function clinic(): BelongsTo

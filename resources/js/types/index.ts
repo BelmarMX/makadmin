@@ -12,6 +12,16 @@ export interface BrandingSharedData {
 
 export type AppContext = 'admin' | 'clinic' | 'app';
 
+export interface Clinic {
+    id: number;
+    slug: string;
+    commercial_name: string;
+    legal_name: string;
+    logo_path?: string | null;
+    logo_url?: string | null;
+    [key: string]: unknown;
+}
+
 export interface SharedPageProps {
     name: string;
     branding: BrandingSharedData;
