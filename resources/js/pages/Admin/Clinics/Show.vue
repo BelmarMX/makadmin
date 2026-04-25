@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, useForm, router, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
-import { ExternalLink, Plus, UserPlus, ShieldCheck, AlertCircle } from 'lucide-vue-next';
+import { ExternalLink, Plus, UserPlus, ShieldCheck, AlertCircle, ImageIcon } from 'lucide-vue-next';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import ClinicStatusBadge from '@/components/domain/Clinic/ClinicStatusBadge.vue';
 import ModuleToggleCard from '@/components/domain/Clinic/ModuleToggleCard.vue';
@@ -32,6 +32,7 @@ const props = defineProps<{
         responsible_vet_name: string;
         responsible_vet_license: string;
         is_active: boolean;
+        logo_url?: string | null;
         deleted_at?: string | null;
         subdomain_url: string;
         branches: Array<{ id: number; name: string; address: string; phone?: string | null; is_main: boolean; is_active: boolean }>;
@@ -86,15 +87,29 @@ function verifyEmail(userId: number) {
     <div class="space-y-6">
         <!-- Header -->
         <div class="flex items-start justify-between gap-4">
-            <div>
-                <div class="flex items-center gap-3">
-                    <h1 class="text-2xl font-bold text-foreground">{{ props.clinic.commercial_name }}</h1>
-                    <ClinicStatusBadge :is-active="props.clinic.is_active" :deleted-at="props.clinic.deleted_at" />
+            <div class="flex items-start gap-4">
+                <img
+                    v-if="props.clinic.logo_url"
+                    :src="props.clinic.logo_url"
+                    alt="Logo"
+                    class="h-16 w-16 rounded-full border border-border object-cover"
+                />
+                <div
+                    v-else
+                    class="flex h-16 w-16 items-center justify-center rounded-full border border-border bg-muted"
+                >
+                    <ImageIcon class="h-6 w-6 text-muted-foreground" />
                 </div>
-                <a :href="props.clinic.subdomain_url" target="_blank" class="inline-flex items-center gap-1 text-sm text-primary hover:underline">
-                    {{ props.clinic.subdomain_url }}
-                    <ExternalLink class="h-3 w-3" />
-                </a>
+                <div>
+                    <div class="flex items-center gap-3">
+                        <h1 class="text-2xl font-bold text-foreground">{{ props.clinic.commercial_name }}</h1>
+                        <ClinicStatusBadge :is-active="props.clinic.is_active" :deleted-at="props.clinic.deleted_at" />
+                    </div>
+                    <a :href="props.clinic.subdomain_url" target="_blank" class="inline-flex items-center gap-1 text-sm text-primary hover:underline">
+                        {{ props.clinic.subdomain_url }}
+                        <ExternalLink class="h-3 w-3" />
+                    </a>
+                </div>
             </div>
             <div class="flex gap-2">
                 <Button variant="outline" as-child>

@@ -19,6 +19,7 @@ const props = defineProps<{
             contact_email: string;
             contact_phone: string;
             is_active: boolean;
+            logo_url?: string | null;
             deleted_at?: string | null;
             subdomain_url?: string;
         }>;

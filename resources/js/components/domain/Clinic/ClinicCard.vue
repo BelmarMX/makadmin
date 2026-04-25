@@ -13,6 +13,7 @@ const props = defineProps<{
         contact_email: string;
         contact_phone: string;
         is_active: boolean;
+        logo_url?: string | null;
         deleted_at?: string | null;
         subdomain_url?: string;
         branches?: Array<{ name: string; is_main: boolean }>;
@@ -25,7 +26,13 @@ const props = defineProps<{
         <CardHeader class="pb-3">
             <div class="flex items-start justify-between gap-3">
                 <div class="flex items-center gap-3">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                    <img
+                        v-if="props.clinic.logo_url"
+                        :src="props.clinic.logo_url"
+                        alt="Logo"
+                        class="h-10 w-10 rounded-full border border-border object-cover"
+                    />
+                    <div v-else class="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-muted">
                         <Building2 class="h-5 w-5 text-primary" />
                     </div>
                     <div>
