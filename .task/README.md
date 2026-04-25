@@ -16,7 +16,7 @@ Lee CLAUDE.md y .task/implementation-01-clinicas.md. Ejecuta la task completa si
 |---|---|---|---|---|
 | 00 | `implementation-00-foundation.md` — Cimientos: multitenancy, permisos, auditoría, layouts base | ✅ Completa | — | 1 día |
 | 01 | `implementation-01-clinicas.md` — Módulo Clínicas (CRUD superadmin, sucursales, módulos activables) | ✅ Completa | 00 | 1 día |
-| 02 | `implementation-02-catalogos-base.md` — Catálogos globales: geográficos (SEPOMEX) + veterinarios base (especies, razas, colores, tamaños, temperamentos) | 🟡 Pendiente | 01 | 1 día |
+| 02 | `implementation-02-catalogos-base.md` — Catálogos globales: geográficos (SEPOMEX) + veterinarios base (especies, razas, colores, tamaños, temperamentos) | ✅ Completa 2026-04-24 | 01 | 1 día |
 | 03 | `implementation-03-usuarios-roles.md` — Gestión de usuarios por clínica, roles, perfil | ⚪ Por redactar | 01 | 0.5 día |
 | 04 | `implementation-04-tutores-pacientes.md` — Tutores (dueños) y pacientes (mascotas): CRUD, relaciones, búsqueda, vacunas | ⚪ Por redactar | 02, 03 | 1.5 días |
 | 05 | `implementation-05-expediente-clinico.md` — Historial clínico, signos vitales, diagnósticos, estudios | ⚪ Por redactar | 04 | 1.5 días |
