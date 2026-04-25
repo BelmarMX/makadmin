@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 class CreateUserAction
 {
     public function __construct(
-        private readonly AssignRoleAction $assignRole,
+        private readonly SyncBranchRolesAction $syncBranchRoles,
         private readonly SendInvitationEmailAction $sendInvitationEmail,
         private readonly UploadUserAvatarAction $uploadAvatar,
     ) {}
@@ -36,9 +36,7 @@ class CreateUserAction
                 $this->uploadAvatar->handle($user, $data->avatar);
             }
 
-            foreach ($data->roles as $role) {
-                $this->assignRole->handle($user, $role);
-            }
+            $this->syncBranchRoles->handle($user, $data->branchRoles);
 
             $this->sendInvitationEmail->handle($user);
 
@@ -50,7 +48,7 @@ class CreateUserAction
                 'by_user_id' => auth()->id(),
             ]);
 
-            return $user->load(['branch', 'roles']);
+            return $user->load(['branch', 'roles', 'branchRoles.branch']);
         });
     }
 }

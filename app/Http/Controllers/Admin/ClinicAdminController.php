@@ -45,8 +45,10 @@ class ClinicAdminController extends Controller
         abort_unless((bool) request()->user()?->is_super_admin, 403);
         abort_unless($user->clinic_id === $clinic->id, 403);
 
-        $user->email_verified_at = now();
-        $user->save();
+        $user->forceFill([
+            'email_verified_at' => now(),
+            'is_active' => true,
+        ])->save();
 
         return back()->with('success', "Email de {$user->email} marcado como verificado.");
     }

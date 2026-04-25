@@ -30,6 +30,13 @@ class StoreUserRequest extends FormRequest
             'avatar' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
             'roles' => ['required', 'array', 'min:1'],
             'roles.*' => [Rule::enum(UserRole::class)],
+            'branch_roles' => ['nullable', 'array', 'min:1'],
+            'branch_roles.*.branch_id' => [
+                'required',
+                Rule::exists('clinic_branches', 'id')->where('clinic_id', current_clinic()->id),
+            ],
+            'branch_roles.*.roles' => ['required', 'array', 'min:1'],
+            'branch_roles.*.roles.*' => [Rule::enum(UserRole::class)],
         ];
     }
 }

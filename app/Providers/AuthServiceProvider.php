@@ -21,6 +21,8 @@ class AuthServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
+        Gate::before(fn (User $user): ?bool => $user->is_super_admin ? true : null);
+
         Gate::policy(Clinic::class, ClinicPolicy::class);
         Gate::policy(ClinicBranch::class, ClinicBranchPolicy::class);
         Gate::policy(User::class, UserPolicy::class);

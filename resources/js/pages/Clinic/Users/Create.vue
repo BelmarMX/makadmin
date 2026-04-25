@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ArrowLeft, Save } from 'lucide-vue-next';
+import { ref } from 'vue';
+import CropModal from '@/components/CropModal.vue';
+import ImageUploadCircle from '@/components/ImageUploadCircle.vue';
+import BranchRolesEditor from '@/components/domain/User/BranchRolesEditor.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +20,12 @@ defineProps<{
 }>();
 
 const clinic = window.location.hostname.split('.')[0];
+const cropOpen = ref(false);
+const cropSrc = ref<string | null>(null);
+const avatarPreview = ref<string | null>(null);
+
+type BranchRole = { branch_id: number; roles: string[] };
+
 const form = useForm<{
     name: string;
     email: string;
@@ -26,6 +36,7 @@ const form = useForm<{
     password_confirmation: string;
     avatar: File | null;
     roles: string[];
+    branch_roles: BranchRole[];
 }>({
     name: '',
     email: '',
@@ -36,9 +47,32 @@ const form = useForm<{
     password_confirmation: '',
     avatar: null,
     roles: [],
+    branch_roles: [],
 });
 
+function syncRolePayload() {
+    form.roles = [...new Set(form.branch_roles.flatMap((assignment) => assignment.roles))];
+    form.branch_id = form.branch_roles[0]?.branch_id ? String(form.branch_roles[0].branch_id) : '';
+}
+
+function onFileSelected(file: File) {
+    cropSrc.value = URL.createObjectURL(file);
+    cropOpen.value = true;
+}
+
+function onCropConfirm(blob: Blob) {
+    cropOpen.value = false;
+    form.avatar = new File([blob], 'avatar.webp', { type: 'image/webp' });
+    avatarPreview.value = URL.createObjectURL(form.avatar);
+}
+
+function removeSelectedAvatar() {
+    avatarPreview.value = null;
+    form.avatar = null;
+}
+
 function submit() {
+    syncRolePayload();
     form.post(userRoutes.store(clinic).url, { forceFormData: true });
 }
 </script>
@@ -66,7 +100,25 @@ function submit() {
             </div>
         </div>
 
-        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div class="grid gap-4 md:grid-cols-[12rem_1fr]">
+            <div class="flex justify-center md:justify-start">
+                <ImageUploadCircle
+                    :model-value="avatarPreview"
+                    size="lg"
+                    label="Avatar"
+                    :error="form.errors.avatar"
+                    @upload="onFileSelected"
+                    @remove="removeSelectedAvatar"
+                />
+                <CropModal
+                    :open="cropOpen"
+                    :image-src="cropSrc"
+                    @confirm="onCropConfirm"
+                    @cancel="cropOpen = false"
+                    @update:open="cropOpen = $event"
+                />
+            </div>
+            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <div class="grid gap-2">
                 <Label for="name">Nombre</Label>
                 <Input id="name" v-model="form.name" autocomplete="name" />
@@ -96,11 +148,6 @@ function submit() {
                 <InputError :message="form.errors.professional_license" />
             </div>
             <div class="grid gap-2">
-                <Label for="avatar">Avatar</Label>
-                <Input id="avatar" type="file" accept="image/png,image/jpeg,image/webp" @input="form.avatar = ($event.target as HTMLInputElement).files?.[0] ?? null" />
-                <InputError :message="form.errors.avatar" />
-            </div>
-            <div class="grid gap-2">
                 <Label for="password">Contraseña temporal</Label>
                 <Input id="password" v-model="form.password" type="password" autocomplete="new-password" />
                 <InputError :message="form.errors.password" />
@@ -109,17 +156,9 @@ function submit() {
                 <Label for="password_confirmation">Confirmar contraseña</Label>
                 <Input id="password_confirmation" v-model="form.password_confirmation" type="password" autocomplete="new-password" />
             </div>
+            </div>
         </div>
 
-        <section class="space-y-3">
-            <h2 class="text-base font-semibold">Roles</h2>
-            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                <label v-for="role in roles" :key="role.value" class="flex items-center gap-3 rounded-lg border p-3 text-sm">
-                    <input v-model="form.roles" type="checkbox" :value="role.value" class="h-4 w-4 rounded border-input" />
-                    <span>{{ role.label }}</span>
-                </label>
-            </div>
-            <InputError :message="form.errors.roles" />
-        </section>
+        <BranchRolesEditor v-model="form.branch_roles" :branches="branches" :roles="roles" :error="form.errors.roles || form.errors.branch_roles" />
     </form>
 </template>

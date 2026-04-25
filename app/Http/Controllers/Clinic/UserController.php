@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Clinic;
 
+use App\Domain\Clinic\Enums\ModuleKey;
 use App\Domain\Clinic\Models\ClinicBranch;
 use App\Domain\User\Actions\CreateUserAction;
 use App\Domain\User\Actions\DeactivateUserAction;
@@ -46,14 +47,14 @@ class UserController extends Controller
     {
         $this->authorize('view', $user);
 
-        return Inertia::render('Clinic/Users/Show', ['user' => $user->load(['branch', 'roles', 'permissions']), ...$this->formProps()]);
+        return Inertia::render('Clinic/Users/Show', ['user' => $user->load(['branch', 'roles', 'permissions', 'branchRoles.branch']), 'effectivePermissions' => $user->getAllPermissions()->values(), ...$this->formProps()]);
     }
 
     public function edit(string $clinic, User $user): Response
     {
         $this->authorize('update', $user);
 
-        return Inertia::render('Clinic/Users/Edit', ['user' => $user->load(['branch', 'roles']), ...$this->formProps()]);
+        return Inertia::render('Clinic/Users/Edit', ['user' => $user->load(['branch', 'roles', 'branchRoles.branch']), ...$this->formProps()]);
     }
 
     public function update(UpdateUserRequest $request, string $clinic, User $user, UpdateUserAction $action): RedirectResponse
@@ -91,7 +92,11 @@ class UserController extends Controller
         return [
             'branches' => current_clinic()->branches()->where('is_active', true)->orderBy('name')->get(['id', 'name']),
             'roles' => UserRole::options(),
-            'modules' => current_clinic()->modules()->where('is_active', true)->orderBy('module_key')->get(['module_key']),
+            'modules' => current_clinic()->modules()->where('is_active', true)->orderBy('module_key')->get(['module_key'])->map(function ($module): array {
+                $moduleKey = (string) $module->getAttribute('module_key');
+
+                return ['module_key' => $moduleKey, 'label' => ModuleKey::tryFrom($moduleKey)?->label() ?? $moduleKey];
+            }),
         ];
     }
 

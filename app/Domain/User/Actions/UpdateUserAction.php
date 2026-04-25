@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 class UpdateUserAction
 {
     public function __construct(
+        private readonly SyncBranchRolesAction $syncBranchRoles,
         private readonly UploadUserAvatarAction $uploadAvatar,
     ) {}
 
@@ -30,15 +31,11 @@ class UpdateUserAction
                 $this->uploadAvatar->handle($user, $data->avatar);
             }
 
-            if ($data->roles !== []) {
-                setPermissionsTeamId($user->clinic_id);
-                $user->syncRoles($data->roles);
-                $user->unsetRelation('roles');
-            }
+            $this->syncBranchRoles->handle($user, $data->branchRoles);
 
             UserUpdated::dispatch($user, auth()->user());
 
-            return $user->fresh(['branch', 'roles']);
+            return $user->fresh(['branch', 'roles', 'branchRoles.branch']);
         });
     }
 }

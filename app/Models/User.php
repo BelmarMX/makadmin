@@ -5,12 +5,14 @@ namespace App\Models;
 use App\Contracts\Integrations\MediaStorage;
 use App\Domain\Clinic\Models\Clinic;
 use App\Domain\Clinic\Models\ClinicBranch;
+use App\Domain\User\Models\UserBranchRole;
 use App\Support\Tenancy\BelongsToClinic;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -25,6 +27,7 @@ class User extends Authenticatable implements Auditable
 
     /** @use HasFactory<UserFactory> */
     use HasFactory;
+
     use HasRoles;
     use Impersonate;
     use Notifiable;
@@ -112,6 +115,11 @@ class User extends Authenticatable implements Auditable
     public function branch(): BelongsTo
     {
         return $this->belongsTo(ClinicBranch::class, 'branch_id');
+    }
+
+    public function branchRoles(): HasMany
+    {
+        return $this->hasMany(UserBranchRole::class);
     }
 
     /** @param Builder<User> $query */

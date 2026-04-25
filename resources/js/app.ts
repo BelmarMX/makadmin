@@ -1,4 +1,6 @@
 import { createInertiaApp } from '@inertiajs/vue3';
+import Aura from '@primeuix/themes/aura';
+import PrimeVue from 'primevue/config';
 import { initializeTheme } from '@/composables/useAppearance';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
@@ -23,6 +25,16 @@ createInertiaApp({
     },
     progress: {
         color: '#4B5563',
+    },
+    withApp: (app) => {
+        app.use(PrimeVue, {
+            theme: {
+                preset: Aura,
+                options: {
+                    darkModeSelector: '.dark',
+                },
+            },
+        });
     },
 });
 

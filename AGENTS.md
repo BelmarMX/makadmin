@@ -221,3 +221,75 @@ Vue components must have a single root element.
 - IMPORTANT: Activate `inertia-vue-development` when working with Inertia Vue client-side patterns.
 
 </laravel-boost-guidelines>
+
+
+<claude-mem-context>
+# Memory Context
+
+# [makadmin] recent context, 2026-04-25 12:46am CST
+
+Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision
+Format: ID TIME TYPE TITLE
+Fetch details: get_observations([IDs]) | Search: mem-search skill
+
+Stats: 50 obs (17,349t read) | 343,270t work | 95% savings
+
+### Apr 23, 2026
+S9 makadmin: Verify Email Button Broken — email_verified_at Not in $fillable (Apr 23 at 9:40 PM)
+S8 VetFollow makadmin: Global UI/UX Rules Capture Pre-Task 02 (Apr 23 at 9:40 PM)
+70 9:45p ✅ Clinics/Edit.vue: Dense Responsive Grid Layout + Primary Color Field Added
+71 9:46p ✅ Clinic Wizard Step Components: Duplicate Field Removed + Fiscal Grid Expanded
+72 9:53p 🔵 VetFollow makadmin: Verify Email Button Bug Investigation — Route & User State
+73 " 🔵 makadmin Routing Architecture: Subdomain-Based Admin vs Clinic Separation
+74 9:55p 🔴 makadmin: Verify Email Button Broken — email_verified_at Not in $fillable
+S13 makadmin: Unified sidebar by domain context + global pro search + CLAUDE.md update (§20-22) (Apr 23 at 9:55 PM)
+75 9:59p 🔵 makadmin: Sidebar Theme Toggle Causes Menu State Reset Bug
+76 10:00p 🔵 makadmin: useAppearance Composable Architecture — Theme Persistence Mechanism
+77 10:01p ✅ makadmin: AppSidebar.vue Refactored to Use Computed Navigation Items
+78 " 🟣 makadmin: AdminSidebar Gets Inline Theme Toggle in Footer
+79 10:02p ✅ makadmin: UI Localized to Spanish — User Menu, Settings Nav, and Headings
+80 10:08p 🟣 makadmin: Inertia Context Resolution for Role-Aware Sidebar
+81 " 🔄 makadmin: AdminSidebar Replaced by Unified AppSidebar
+83 10:09p 🟣 makadmin: Pro Search Added to Clinics Index
+84 10:10p ✅ makadmin: CLAUDE.md Updated with Mandatory UI/UX Standards
+85 " ✅ makadmin: CLAUDE.md Sections §20-22 — Sidebar Architecture, Search Pattern, Dev Gotchas
+87 10:11p 🔴 makadmin: orWhereIlike() Undefined on Eloquent Builder — Fixed with orWhere('ilike')
+91 10:17p ⚖️ makadmin: Task 02 Catálogos Base — Full Architecture Plan
+92 " 🟣 makadmin: Geographic Catalog Migrations Created
+93 10:18p 🟣 makadmin: Catalog Migrations Filled — Countries Schema Implemented
+94 " 🟣 makadmin: Veterinary + Postal Code Migration Schemas Implemented
+95 10:19p 🔵 makadmin: ClinicOrGlobalScope Already Exists — Tenancy Infrastructure Pre-Built
+### Apr 24, 2026
+96 4:16p 🔵 makadmin: Task 02 Catálogos Base — Domain Structure + Migrations Already Present
+97 4:17p 🔵 makadmin: Task 02 Catálogos Base — Existing Architecture Snapshot
+98 4:18p 🔵 makadmin: Admin CatalogController — Action Pattern + System-Only Scope
+99 " 🔵 makadmin: SyncSepomex — Artisan Command for Mexican Postal Code Import
+100 4:19p 🔵 PelageColorsManager.vue — Catalog Manager Component Pattern
+101 4:20p 🔵 makadmin: CatalogEntryRow.vue — Inline Edit Component Exists
+102 " 🔵 makadmin: Catalog Base Table Migrations Already Created
+103 4:21p 🟣 Task 02 Catálogos Base: Migrations + Seeders All Pass
+104 " 🟣 makadmin: TemperamentsManager.vue Catalog Component Created
+105 4:22p 🔵 makadmin: Dual CatalogController Architecture — Admin vs API
+106 " 🟣 makadmin: Catalog Combobox Component System — BaseCatalogCombobox + SpeciesSelect + BreedSelect
+107 4:23p 🟣 PostalCodeCombobox Vue Component Created
+108 " 🔵 makadmin: Test Structure for Admin/Clinic Module
+109 4:24p 🔵 makadmin: Admin Catalog Routes + Geographic Seed State
+110 " 🟣 makadmin: Catalog Tenant Isolation Tests — ClinicOrGlobalScope + Feature Tests
+111 " 🟣 Catalog Module Feature Tests — Species CRUD + Breed Cascade
+112 4:25p 🟣 Catalog Geographic Tests — Postal Code Lookup + SEPOMEX Sync Command
+113 " 🔵 php artisan test Does Not Accept --no-interaction Flag
+114 4:26p 🔴 CatalogController: ilike incompatible with SQLite test environment
+115 4:27p 🔴 ClinicOrGlobalScopeTest moved from Unit to Feature directory
+116 " 🔵 PHPStan Level 6 Errors in Catalog Domain Code
+117 4:28p 🔴 SyncSepomexAction::parseLine() Missing Return Type Annotation Fixed
+120 " 🔴 VeterinaryCatalogPolicy $is_system Access Fixed via getAttribute()
+121 " ✅ phpstan.neon Stale Ignore Patterns Removed — PHPStan Now Clean
+122 4:29p 🟣 makadmin Task 02 — Catálogos Base: Completed 2026-04-24
+S16 makadmin Task 02 — Catálogos Base: Completed 2026-04-24 (Apr 24 at 4:29 PM)
+123 4:39p 🟣 makadmin: Clinic Logo + User Avatar Upload Feature Requested
+124 11:07p 🔵 makadmin: Task-02 Pre-Validation State — Repo Has Unstaged Changes
+125 11:08p 🟣 makadmin: Clinic Logo Display in Show and Index Pages
+126 " 🟣 makadmin: Avatar Upload Integration in Profile Settings Page
+
+Access 343k tokens of past work via get_observations([IDs]) or mem-search skill.
+</claude-mem-context>

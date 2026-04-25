@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { roleLabel } from '@/lib/userLabels';
 import * as permissionRoutes from '@/actions/App/Http/Controllers/Clinic/UserPermissionController';
 import * as userRoutes from '@/actions/App/Http/Controllers/Clinic/UserController';
 
@@ -24,8 +25,10 @@ const props = defineProps<{
         branch?: { id: number; name: string } | null;
         roles?: Array<{ id: number; name: string }>;
         permissions?: Array<{ id: number; name: string }>;
+        branch_roles?: Array<{ id: number; branch_id: number; role: string; branch?: { id: number; name: string } | null }>;
     };
-    modules: Array<{ module_key: string }>;
+    modules: Array<{ module_key: string; label: string }>;
+    effectivePermissions: Array<{ id: number; name: string }>;
 }>();
 
 const clinic = window.location.hostname.split('.')[0];
@@ -96,8 +99,30 @@ function restore() {
                     <div><span class="text-muted-foreground">Sucursal:</span> {{ user.branch?.name ?? 'Sin sucursal' }}</div>
                     <div><span class="text-muted-foreground">Teléfono:</span> {{ user.phone ?? 'Sin teléfono' }}</div>
                     <div><span class="text-muted-foreground">Cédula:</span> {{ user.professional_license ?? 'No registrada' }}</div>
-                    <div class="flex flex-wrap gap-2">
-                        <span v-for="role in user.roles ?? []" :key="role.id" class="rounded border px-2 py-1">{{ role.name }}</span>
+                    <div class="space-y-2">
+                        <span class="text-muted-foreground">Roles:</span>
+                        <div class="flex flex-wrap gap-2">
+                            <span
+                                v-for="role in user.roles ?? []"
+                                :key="role.id"
+                                class="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary"
+                            >
+                                {{ roleLabel(role.name) }}
+                            </span>
+                        </div>
+                    </div>
+                    <div v-if="user.branch_roles?.length" class="space-y-2">
+                        <span class="text-muted-foreground">Sucursales y roles:</span>
+                        <div class="space-y-2">
+                            <div
+                                v-for="assignment in user.branch_roles"
+                                :key="assignment.id"
+                                class="flex flex-wrap items-center gap-2 rounded-md border bg-muted/20 px-3 py-2"
+                            >
+                                <span class="font-medium">{{ assignment.branch?.name ?? 'Sucursal' }}</span>
+                                <span class="rounded-full bg-background px-2 py-0.5 text-xs text-muted-foreground">{{ roleLabel(assignment.role) }}</span>
+                            </div>
+                        </div>
                     </div>
                 </CardContent>
             </Card>
@@ -108,7 +133,7 @@ function restore() {
                     <PermissionGrid
                         :action="permissionRoutes.update({ clinic, user: user.id }).url"
                         :modules="modules"
-                        :permissions="user.permissions"
+                        :permissions="effectivePermissions"
                     />
                 </CardContent>
             </Card>
