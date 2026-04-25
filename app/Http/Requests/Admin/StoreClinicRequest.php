@@ -32,7 +32,7 @@ class StoreClinicRequest extends FormRequest
             'responsible_vet_license' => ['required', 'string', 'max:50'],
             'contact_phone' => ['required', 'string', 'max:20'],
             'contact_email' => ['required', 'email', 'max:200'],
-            'logo' => ['nullable', 'image', 'mimes:png,jpg,webp,svg', 'max:2048'],
+            'logo' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:5120'],
             'primary_color' => ['nullable', 'regex:/^#[0-9a-f]{6}$/i'],
             'main_branch' => ['required', 'array'],
             'main_branch.name' => ['required', 'string', 'max:200'],

@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useBranding } from '@/composables/useBranding';
+import ImageUploadCircle from '@/components/ImageUploadCircle.vue';
 
 const props = defineProps<{
     form: {
@@ -12,9 +13,18 @@ const props = defineProps<{
         contact_email: string;
         contact_phone: string;
         primary_color: string;
+        logo: File | null;
         errors: Record<string, string>;
     };
 }>();
+
+const emit = defineEmits<{
+    'upload-logo': [file: File];
+}>();
+
+function logoPreview(): string | null {
+    return props.form.logo ? URL.createObjectURL(props.form.logo) : null;
+}
 
 const { apexDomain } = useBranding();
 const subdomainPreview = computed(() => props.form.slug ? `${props.form.slug}.${apexDomain.value}` : `tu-clinica.${apexDomain.value}`);
@@ -22,6 +32,17 @@ const subdomainPreview = computed(() => props.form.slug ? `${props.form.slug}.${
 
 <template>
     <div class="space-y-5">
+        <div class="flex justify-center pb-2">
+            <ImageUploadCircle
+                :model-value="logoPreview()"
+                size="lg"
+                label="Logo de la clínica (opcional)"
+                :error="props.form.errors.logo"
+                @upload="emit('upload-logo', $event)"
+                @remove="props.form.logo = null"
+            />
+        </div>
+
         <div class="space-y-2">
             <Label for="slug">Subdominio <span class="text-destructive">*</span></Label>
             <div class="flex items-center rounded-md border border-input bg-muted/30">

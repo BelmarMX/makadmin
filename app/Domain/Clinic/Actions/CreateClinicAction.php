@@ -2,7 +2,6 @@
 
 namespace App\Domain\Clinic\Actions;
 
-use App\Contracts\Integrations\MediaStorage;
 use App\Domain\Clinic\DataTransferObjects\ClinicData;
 use App\Domain\Clinic\Enums\ModuleKey;
 use App\Domain\Clinic\Events\ClinicCreated;
@@ -16,18 +15,13 @@ use Illuminate\Support\Facades\Log;
 class CreateClinicAction
 {
     public function __construct(
-        private readonly MediaStorage $media,
         private readonly InviteClinicAdminAction $inviteAdmin,
+        private readonly UploadClinicLogoAction $uploadLogo,
     ) {}
 
     public function handle(ClinicData $data): Clinic
     {
         return DB::transaction(function () use ($data): Clinic {
-            $logoPath = null;
-            if ($data->logo) {
-                $logoPath = $this->media->put("clinics/{$data->slug}/logo", $data->logo);
-            }
-
             $clinic = Clinic::create([
                 'slug' => $data->slug,
                 'legal_name' => $data->legalName,
@@ -40,10 +34,14 @@ class CreateClinicAction
                 'contact_phone' => $data->contactPhone,
                 'contact_email' => $data->contactEmail,
                 'primary_color' => $data->primaryColor,
-                'logo_path' => $logoPath,
+                'logo_path' => null,
                 'settings' => [],
                 'is_active' => false,
             ]);
+
+            if ($data->logo) {
+                $this->uploadLogo->handle($clinic, $data->logo);
+            }
 
             $mainBranch = ClinicBranch::withoutGlobalScope(ClinicScope::class)->create([
                 'clinic_id' => $clinic->id,

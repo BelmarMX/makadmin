@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
+import CropModal from '@/components/CropModal.vue';
 import { ref, computed } from 'vue';
 import { toast } from 'vue-sonner';
 import {
@@ -53,6 +54,19 @@ const form = useForm({
     admin: { name: '', email: '', phone: '' },
     logo: null as File | null,
 });
+
+const cropOpen = ref(false);
+const cropSrc = ref<string | null>(null);
+
+function onLogoSelected(file: File) {
+    cropSrc.value = URL.createObjectURL(file);
+    cropOpen.value = true;
+}
+
+function onCropConfirm(blob: Blob) {
+    cropOpen.value = false;
+    form.logo = new File([blob], 'logo.webp', { type: 'image/webp' });
+}
 
 // Campos requeridos por paso para validación frontend
 const stepRequiredFields: Record<number, string[]> = {
@@ -194,12 +208,20 @@ const hasStepErrors = computed(() => stepErrors.value.length > 0 || Object.keys(
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <StepIdentity v-if="currentStep === 0" :form="form" />
+                <StepIdentity v-if="currentStep === 0" :form="form" @upload-logo="onLogoSelected" />
                 <StepFiscal v-else-if="currentStep === 1" :form="form" :fiscal-regimes="props.fiscalRegimes" />
                 <StepBranch v-else-if="currentStep === 2" :form="form" />
                 <StepModulesAdmin v-else-if="currentStep === 3" :form="form" :modules="props.modules" />
             </CardContent>
         </Card>
+
+        <CropModal
+            :open="cropOpen"
+            :image-src="cropSrc"
+            @confirm="onCropConfirm"
+            @cancel="cropOpen = false"
+            @update:open="cropOpen = $event"
+        />
 
         <!-- Botones de navegación ABAJO (duplicados para comodidad en formularios largos) -->
         <div class="flex items-center justify-between gap-2">
