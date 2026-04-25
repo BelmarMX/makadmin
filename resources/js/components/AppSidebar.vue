@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { LayoutGrid, LayoutDashboard, Building2, Sun, Moon, Monitor } from 'lucide-vue-next';
+import { LayoutGrid, LayoutDashboard, Building2, Sun, Moon, Monitor, Users } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -18,11 +18,13 @@ import {
 import { dashboard } from '@/routes';
 import * as adminDashboard from '@/actions/App/Http/Controllers/Admin/AdminDashboardController';
 import * as clinicRoutes from '@/actions/App/Http/Controllers/Admin/ClinicController';
+import * as clinicUserRoutes from '@/actions/App/Http/Controllers/Clinic/UserController';
 import { useAppearance } from '@/composables/useAppearance';
 import type { NavItem, SharedPageProps } from '@/types';
 
 const page = usePage<SharedPageProps>();
 const { appearance, updateAppearance } = useAppearance();
+const clinic = window.location.hostname.split('.')[0];
 
 const context = computed(() => page.props.context ?? 'app');
 
@@ -37,7 +39,13 @@ const navItems = computed<NavItem[]>(() => {
             { title: 'Clínicas', href: clinicRoutes.index().url, icon: Building2 },
         ];
     }
-    // 'clinic' context: populated in future tasks per-clinic nav
+    if (context.value === 'clinic') {
+        return [
+            { title: 'Dashboard', href: dashboard(), icon: LayoutGrid },
+            { title: 'Usuarios', href: clinicUserRoutes.index(clinic).url, icon: Users },
+        ];
+    }
+
     return [
         { title: 'Dashboard', href: dashboard(), icon: LayoutGrid },
     ];

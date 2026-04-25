@@ -5,8 +5,10 @@ namespace App\Models;
 use App\Contracts\Integrations\MediaStorage;
 use App\Domain\Clinic\Models\Clinic;
 use App\Domain\Clinic\Models\ClinicBranch;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use App\Support\Tenancy\BelongsToClinic;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -19,9 +21,10 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements Auditable
 {
+    use BelongsToClinic;
+
     /** @use HasFactory<UserFactory> */
     use HasFactory;
-
     use HasRoles;
     use Impersonate;
     use Notifiable;
@@ -39,6 +42,14 @@ class User extends Authenticatable implements Auditable
         'phone',
         'avatar_path',
         'professional_license',
+        'is_active',
+        'last_login_at',
+        'last_login_ip',
+    ];
+
+    /** @var array<string, mixed> */
+    protected $attributes = [
+        'is_active' => true,
     ];
 
     protected $hidden = [
@@ -55,6 +66,8 @@ class User extends Authenticatable implements Auditable
             'two_factor_confirmed_at' => 'datetime',
             'password' => 'hashed',
             'is_super_admin' => 'boolean',
+            'is_active' => 'boolean',
+            'last_login_at' => 'datetime',
         ];
     }
 
@@ -80,6 +93,17 @@ class User extends Authenticatable implements Auditable
         );
     }
 
+    protected function initials(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): string => str($this->name)
+                ->explode(' ')
+                ->filter()
+                ->map(fn (string $word): string => mb_substr($word, 0, 1))
+                ->join(''),
+        )->shouldCache();
+    }
+
     public function clinic(): BelongsTo
     {
         return $this->belongsTo(Clinic::class);
@@ -88,5 +112,59 @@ class User extends Authenticatable implements Auditable
     public function branch(): BelongsTo
     {
         return $this->belongsTo(ClinicBranch::class, 'branch_id');
+    }
+
+    /** @param Builder<User> $query */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
+    }
+
+    /** @param Builder<User> $query */
+    public function scopeInactive(Builder $query): Builder
+    {
+        return $query->where('is_active', false);
+    }
+
+    /** @param Builder<User> $query */
+    public function scopeByBranch(Builder $query, ClinicBranch $branch): Builder
+    {
+        return $query->where('branch_id', $branch->id);
+    }
+
+    /** @param Builder<User> $query */
+    public function scopeByRole(Builder $query, string $role): Builder
+    {
+        return $query->role($role);
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->is_super_admin === true;
+    }
+
+    public function isClinicAdmin(): bool
+    {
+        return $this->hasRole('clinic_admin');
+    }
+
+    public function isVeterinarian(): bool
+    {
+        return $this->hasRole('veterinarian');
+    }
+
+    public function isGroomer(): bool
+    {
+        return $this->hasRole('groomer');
+    }
+
+    public function isReceptionist(): bool
+    {
+        return $this->hasRole('receptionist');
+    }
+
+    public function isCashier(): bool
+    {
+        return $this->hasRole('cashier');
     }
 }

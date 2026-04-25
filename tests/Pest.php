@@ -1,6 +1,13 @@
 <?php
 
+use App\Domain\Clinic\Models\Clinic;
+use App\Domain\Clinic\Models\ClinicBranch;
+use App\Domain\Clinic\Models\ClinicModule;
+use App\Domain\User\Permissions;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 /*
@@ -17,6 +24,10 @@ use Tests\TestCase;
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');
+
+pest()->extend(TestCase::class)
+    ->use(RefreshDatabase::class)
+    ->in('Unit/User');
 
 /*
 |--------------------------------------------------------------------------
@@ -47,4 +58,54 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+function task03ClinicContext(): array
+{
+    $clinic = Clinic::factory()->create(['slug' => str(fake()->unique()->words(2, true))->slug()->toString()]);
+    $branch = ClinicBranch::withoutGlobalScopes()->create([
+        'clinic_id' => $clinic->id,
+        'name' => 'Sucursal Principal',
+        'address' => 'Av. Prueba 123',
+        'is_main' => true,
+        'is_active' => true,
+    ]);
+
+    ClinicModule::withoutGlobalScopes()->create([
+        'clinic_id' => $clinic->id,
+        'module_key' => 'patients',
+        'is_active' => true,
+        'activated_at' => now(),
+    ]);
+
+    app()->instance('current.clinic', $clinic);
+    setPermissionsTeamId($clinic->id);
+
+    return [$clinic, $branch];
+}
+
+function task03ClinicAdmin(Clinic $clinic, ClinicBranch $branch): User
+{
+    foreach (Permissions::all() as $permission) {
+        Permission::findOrCreate($permission, 'web');
+    }
+
+    $role = Role::findOrCreate('clinic_admin', 'web');
+    $role->syncPermissions(Permissions::all());
+
+    $user = User::factory()->create([
+        'clinic_id' => $clinic->id,
+        'branch_id' => $branch->id,
+        'is_active' => true,
+    ]);
+
+    setPermissionsTeamId($clinic->id);
+    $user->assignRole($role);
+
+    return $user;
+}
+
+function task03ClinicRoute(string $name, Clinic $clinic, array $parameters = []): string
+{
+    return route($name, ['clinic' => $clinic->slug, ...$parameters]);
 }

@@ -36,6 +36,7 @@ class ResolveClinic
 
         app()->instance('current.clinic', $clinic);
         config(['permission.team_id' => $clinic->id]);
+        setPermissionsTeamId($clinic->id);
 
         return $next($request);
     }

@@ -28,7 +28,7 @@ class DemoClinicSeeder extends Seeder
             ]
         );
 
-        ClinicBranch::firstOrCreate(
+        $mainBranch = ClinicBranch::firstOrCreate(
             ['clinic_id' => $clinic->id, 'name' => 'Sucursal Principal'],
             [
                 'address' => 'Calle Demo 123, Ciudad de México',
@@ -45,7 +45,7 @@ class DemoClinicSeeder extends Seeder
             );
         }
 
-        $adminRole = Role::firstOrCreate(['name' => 'clinic_admin', 'guard_name' => 'web']);
+        $adminRole = Role::findOrCreate('clinic_admin', 'web');
 
         $admin = User::firstOrCreate(
             ['email' => 'admin@demo.makadmin.com'],
@@ -53,12 +53,30 @@ class DemoClinicSeeder extends Seeder
                 'name' => 'Admin Demo',
                 'password' => 'demo-password',
                 'clinic_id' => $clinic->id,
+                'branch_id' => $mainBranch->id,
                 'is_super_admin' => false,
+                'is_active' => true,
                 'email_verified_at' => now(),
             ]
         );
 
         app()[PermissionRegistrar::class]->setPermissionsTeamId($clinic->id);
         $admin->assignRole($adminRole);
+
+        foreach (['veterinarian', 'groomer', 'receptionist', 'cashier'] as $role) {
+            $user = User::firstOrCreate(
+                ['email' => "{$role}@{$clinic->slug}.test"],
+                [
+                    'name' => str($role)->replace('_', ' ')->title()->toString(),
+                    'password' => 'demo-password',
+                    'clinic_id' => $clinic->id,
+                    'branch_id' => $mainBranch->id,
+                    'is_active' => true,
+                    'email_verified_at' => now(),
+                ],
+            );
+
+            $user->assignRole(Role::findOrCreate($role, 'web'));
+        }
     }
 }
