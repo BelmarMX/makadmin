@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\Integrations\MediaStorage;
 use App\Domain\Clinic\Actions\ActivateClinicAction;
 use App\Domain\Clinic\Actions\CreateClinicAction;
 use App\Domain\Clinic\Actions\DeactivateClinicAction;
 use App\Domain\Clinic\Actions\UpdateClinicAction;
+use App\Domain\Clinic\Actions\UploadClinicLogoAction;
+use App\Http\Requests\UploadImageRequest;
 use App\Domain\Clinic\DataTransferObjects\ClinicData;
 use App\Domain\Clinic\Enums\FiscalRegime;
 use App\Domain\Clinic\Enums\ModuleKey;
@@ -141,5 +144,26 @@ class ClinicController extends Controller
         $action->handle($clinic);
 
         return back()->with('success', "Clínica «{$clinic->commercial_name}» desactivada.");
+    }
+
+    public function uploadLogo(UploadImageRequest $request, Clinic $clinic, UploadClinicLogoAction $action): RedirectResponse
+    {
+        $this->authorize('update', $clinic);
+        $action->handle($clinic, $request->file('image'));
+
+        return back()->with('success', 'Logo actualizado.');
+    }
+
+    public function destroyLogo(Clinic $clinic): RedirectResponse
+    {
+        $this->authorize('update', $clinic);
+
+        if ($clinic->logo_path) {
+            app(MediaStorage::class)->delete($clinic->logo_path);
+            $clinic->logo_path = null;
+            $clinic->save();
+        }
+
+        return back()->with('success', 'Logo eliminado.');
     }
 }

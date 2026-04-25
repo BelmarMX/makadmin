@@ -36,4 +36,7 @@ Route::prefix('clinics')->name('admin.clinics.')->group(function () {
 
     Route::post('/{clinic}/invite-admin', [ClinicAdminController::class, 'invite'])->name('invite-admin');
     Route::post('/{clinic}/users/{user}/verify-email', [ClinicAdminController::class, 'verifyEmail'])->name('users.verify-email');
+
+    Route::post('/{clinic}/logo', [ClinicController::class, 'uploadLogo'])->name('upload-logo');
+    Route::delete('/{clinic}/logo', [ClinicController::class, 'destroyLogo'])->name('destroy-logo');
 });
