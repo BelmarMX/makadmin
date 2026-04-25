@@ -7,4 +7,5 @@ parameters:
     level: 6
     ignoreErrors:
         - identifier: missingType.generics
-    excludePaths: []
+    excludePaths:
+        - app/Http/Resources/

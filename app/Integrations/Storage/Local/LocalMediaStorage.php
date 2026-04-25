@@ -19,6 +19,13 @@ class LocalMediaStorage implements MediaStorage
         return $stored ?: $path;
     }
 
+    public function putRaw(string $path, string $contents): string
+    {
+        Storage::disk('public')->put($path, $contents);
+
+        return $path;
+    }
+
     public function url(string $path): string
     {
         return Storage::disk('public')->url($path);
