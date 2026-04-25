@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
+import CropModal from '@/components/CropModal.vue';
+import ImageUploadCircle from '@/components/ImageUploadCircle.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -25,6 +28,7 @@ const props = defineProps<{
         contact_phone: string;
         contact_email: string;
         primary_color?: string | null;
+        logo_url?: string | null;
     };
     fiscalRegimes: Array<{ value: string; label: string }>;
 }>();
@@ -44,6 +48,37 @@ const form = useForm({
     logo: null as File | null,
 });
 
+const cropOpen = ref(false);
+const cropSrc = ref<string | null>(null);
+const currentLogoUrl = ref<string | null>(props.clinic.logo_url ?? null);
+
+function onFileSelected(file: File) {
+    cropSrc.value = URL.createObjectURL(file);
+    cropOpen.value = true;
+}
+
+function onCropConfirm(blob: Blob) {
+    cropOpen.value = false;
+    const formData = new FormData();
+    formData.append('image', new File([blob], 'logo.webp', { type: 'image/webp' }));
+    router.post(clinicRoutes.uploadLogo({ clinic: props.clinic.id }).url, formData, {
+        forceFormData: true,
+        preserveScroll: true,
+        onSuccess: () => {
+            currentLogoUrl.value = null;
+        },
+    });
+}
+
+function removeLogo() {
+    router.delete(clinicRoutes.destroyLogo({ clinic: props.clinic.id }).url, {
+        preserveScroll: true,
+        onSuccess: () => {
+            currentLogoUrl.value = null;
+        },
+    });
+}
+
 function submit() {
     form.put(clinicRoutes.update({ clinic: props.clinic.id }).url);
 }
@@ -58,6 +93,23 @@ function submit() {
         <Card>
             <CardHeader><CardTitle>Datos generales</CardTitle></CardHeader>
             <CardContent class="space-y-5">
+                <div class="flex justify-center">
+                    <ImageUploadCircle
+                        :model-value="currentLogoUrl"
+                        size="lg"
+                        label="Logo de la clínica"
+                        @upload="onFileSelected"
+                        @remove="removeLogo"
+                    />
+                    <CropModal
+                        :open="cropOpen"
+                        :image-src="cropSrc"
+                        @confirm="onCropConfirm"
+                        @cancel="cropOpen = false"
+                        @update:open="cropOpen = $event"
+                    />
+                </div>
+
                 <div class="grid grid-cols-2 gap-4 xl:grid-cols-3">
                     <div class="space-y-2">
                         <Label for="slug">Subdominio <span class="text-destructive">*</span></Label>
