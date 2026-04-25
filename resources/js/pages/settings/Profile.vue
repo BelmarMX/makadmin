@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { Form, Head, Link, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { Form, Head, Link, router, usePage } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
-import DeleteUser from '@/components/DeleteUser.vue';
+import CropModal from '@/components/CropModal.vue';
 import Heading from '@/components/Heading.vue';
+import ImageUploadCircle from '@/components/ImageUploadCircle.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +32,31 @@ defineOptions({
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
+const cropOpen = ref(false);
+const cropSrc = ref<string | null>(null);
+
+function onFileSelected(file: File) {
+    cropSrc.value = URL.createObjectURL(file);
+    cropOpen.value = true;
+}
+
+function onCropConfirm(blob: Blob) {
+    cropOpen.value = false;
+
+    const fd = new FormData();
+    fd.append('image', new File([blob], 'avatar.webp', { type: 'image/webp' }));
+
+    router.post('/settings/profile/avatar', fd, {
+        forceFormData: true,
+        preserveScroll: true,
+    });
+}
+
+function removeAvatar() {
+    router.delete('/settings/profile/avatar', {
+        preserveScroll: true,
+    });
+}
 </script>
 
 <template>
@@ -50,6 +76,23 @@ const user = computed(() => page.props.auth.user);
             class="space-y-6"
             v-slot="{ errors, processing }"
         >
+            <div class="flex justify-center pb-4">
+                <ImageUploadCircle
+                    :model-value="user?.avatar ?? null"
+                    size="lg"
+                    label="Foto de perfil"
+                    @upload="onFileSelected"
+                    @remove="removeAvatar"
+                />
+                <CropModal
+                    :open="cropOpen"
+                    :image-src="cropSrc"
+                    @confirm="onCropConfirm"
+                    @cancel="cropOpen = false"
+                    @update:open="cropOpen = $event"
+                />
+            </div>
+
             <div class="grid gap-2">
                 <Label for="name">Name</Label>
                 <Input
@@ -106,6 +149,4 @@ const user = computed(() => page.props.auth.user);
             </div>
         </Form>
     </div>
-
-    <DeleteUser />
 </template>
