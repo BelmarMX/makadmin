@@ -21,7 +21,7 @@ class CatalogController extends Controller
 {
     private function like(): string
     {
-        return DB::connection()->getDriverName() === 'pgsql' ? $this->like() : 'like';
+        return DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
     }
 
     public function countries(Request $request): AnonymousResourceCollection

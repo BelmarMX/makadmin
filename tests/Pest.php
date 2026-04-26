@@ -3,6 +3,7 @@
 use App\Domain\Clinic\Models\Clinic;
 use App\Domain\Clinic\Models\ClinicBranch;
 use App\Domain\Clinic\Models\ClinicModule;
+use App\Domain\Patient\Permissions as PatientPermissions;
 use App\Domain\User\Permissions;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -28,6 +29,10 @@ pest()->extend(TestCase::class)
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Unit/User');
+
+pest()->extend(TestCase::class)
+    ->use(RefreshDatabase::class)
+    ->in('Unit/Patient');
 
 /*
 |--------------------------------------------------------------------------
@@ -86,12 +91,12 @@ function task03ClinicContext(): array
 
 function task03ClinicAdmin(Clinic $clinic, ClinicBranch $branch): User
 {
-    foreach (Permissions::all() as $permission) {
+    foreach ([...Permissions::all(), ...PatientPermissions::all()] as $permission) {
         Permission::findOrCreate($permission, 'web');
     }
 
     $role = Role::findOrCreate('clinic_admin', 'web');
-    $role->syncPermissions(Permissions::all());
+    $role->syncPermissions([...Permissions::all(), ...PatientPermissions::all()]);
 
     $user = User::factory()->create([
         'clinic_id' => $clinic->id,

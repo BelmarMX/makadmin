@@ -46,6 +46,8 @@ No hardcodear colores si existe token semántico.
 - primevue como base.
 - shadcn-vue como fallback.
 - Iconos: lucide-vue-next.
+- Fechas y calendarios: usar `DatePicker` de PrimeVue. No usar `input[type="date"]` ni componentes nativos para selección de fechas.
+- Inputs de captura: preferir `IconField` + `InputIcon` con `InputText` en formularios de datos cuando el icono ayude al reconocimiento del campo.
 - Animación: `@vueuse/core` y transiciones Vue nativas.
 - Toast: PrimeVue Toast con `ToastService` + `<Toast position="top-right" />` en layouts. Helper `@/lib/toast.ts` expone `toast.success()`, `toast.error()`, `toast.info()`, `toast.warning()`. No usar vue-sonner.
 - Font-size PrimeVue: html base 16px. Componentes PrimeVue escalan a 14px via `.p-component { font-size: 0.875rem }`. No cambiar html font-size.

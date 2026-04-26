@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { Building2, LayoutDashboard, LayoutGrid, Monitor, Moon, Sun, Users } from 'lucide-vue-next';
+import { Building2, LayoutDashboard, LayoutGrid, Monitor, Moon, PawPrint, Sun, Users } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -17,6 +17,8 @@ import {
 } from '@/components/ui/sidebar';
 import * as adminDashboard from '@/actions/App/Http/Controllers/Admin/AdminDashboardController';
 import * as clinicRoutes from '@/actions/App/Http/Controllers/Admin/ClinicController';
+import * as clientRoutes from '@/actions/App/Http/Controllers/Clinic/ClientController';
+import * as patientRoutes from '@/actions/App/Http/Controllers/Clinic/PatientController';
 import * as clinicUserRoutes from '@/actions/App/Http/Controllers/Clinic/UserController';
 import { useAppearance } from '@/composables/useAppearance';
 import { clinicSlug } from '@/composables/useClinicSlug';
@@ -63,6 +65,15 @@ const navItems = computed<NavItemWithPermission[]>(() => {
     if (context.value === 'clinic') {
         return [
             { title: 'Dashboard', href: dashboard(), icon: LayoutGrid },
+            {
+                title: 'Tutores y pacientes',
+                href: clientRoutes.index(clinic).url,
+                icon: PawPrint,
+                permission: 'clients.view',
+                items: canSee('patients.create')
+                    ? [{ title: 'Alta rápida de pacientes', href: patientRoutes.quickCreate(clinic).url }]
+                    : [],
+            },
             { title: 'Usuarios', href: clinicUserRoutes.index(clinic).url, icon: Users, permission: 'users.view' },
         ];
     }

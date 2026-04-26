@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Domain\Clinic\Enums\ModuleKey;
+use App\Domain\Patient\Permissions as PatientPermissions;
 use App\Domain\User\Permissions as UserPermissions;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
@@ -32,9 +33,27 @@ class RolesSeeder extends Seeder
         }
 
         Role::findOrCreate('clinic_admin', 'web')->syncPermissions($this->permissions());
-        Role::findOrCreate('veterinarian', 'web')->syncPermissions(['users.view', 'patients.view', 'patients.create', 'appointments.view']);
+        Role::findOrCreate('veterinarian', 'web')->syncPermissions([
+            'users.view',
+            PatientPermissions::CLIENTS_VIEW,
+            PatientPermissions::CLIENTS_CREATE,
+            PatientPermissions::CLIENTS_UPDATE,
+            PatientPermissions::PATIENTS_VIEW,
+            PatientPermissions::PATIENTS_CREATE,
+            PatientPermissions::PATIENTS_UPDATE,
+            'appointments.view',
+        ]);
         Role::findOrCreate('groomer', 'web')->syncPermissions(['users.view', 'grooming.view', 'grooming.update']);
-        Role::findOrCreate('receptionist', 'web')->syncPermissions(['users.view', 'appointments.view', 'appointments.create', 'patients.view']);
+        Role::findOrCreate('receptionist', 'web')->syncPermissions([
+            'users.view',
+            PatientPermissions::CLIENTS_VIEW,
+            PatientPermissions::CLIENTS_CREATE,
+            PatientPermissions::CLIENTS_UPDATE,
+            PatientPermissions::PATIENTS_VIEW,
+            PatientPermissions::PATIENTS_CREATE,
+            'appointments.view',
+            'appointments.create',
+        ]);
         Role::findOrCreate('cashier', 'web')->syncPermissions(['users.view', 'pos.view', 'pos.create']);
     }
 
@@ -50,6 +69,6 @@ class RolesSeeder extends Seeder
             ])
             ->all();
 
-        return array_values(array_unique([...UserPermissions::all(), ...$modulePermissions]));
+        return array_values(array_unique([...UserPermissions::all(), ...PatientPermissions::all(), ...$modulePermissions]));
     }
 }

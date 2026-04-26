@@ -12,6 +12,10 @@ use App\Domain\Clinic\Models\Clinic;
 use App\Domain\Clinic\Models\ClinicBranch;
 use App\Domain\Clinic\Policies\ClinicBranchPolicy;
 use App\Domain\Clinic\Policies\ClinicPolicy;
+use App\Domain\Patient\Models\Client;
+use App\Domain\Patient\Models\Patient;
+use App\Domain\Patient\Policies\ClientPolicy;
+use App\Domain\Patient\Policies\PatientPolicy;
 use App\Domain\User\Policies\UserPolicy;
 use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -31,5 +35,7 @@ class AuthServiceProvider extends ServiceProvider
         Gate::policy(PelageColor::class, VeterinaryCatalogPolicy::class);
         Gate::policy(PetSize::class, VeterinaryCatalogPolicy::class);
         Gate::policy(Temperament::class, VeterinaryCatalogPolicy::class);
+        Gate::policy(Client::class, ClientPolicy::class);
+        Gate::policy(Patient::class, PatientPolicy::class);
     }
 }

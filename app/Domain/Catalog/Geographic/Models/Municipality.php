@@ -2,13 +2,16 @@
 
 namespace App\Domain\Catalog\Geographic\Models;
 
+use App\Support\Tenancy\BelongsToClinicOrGlobal;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Municipality extends Model
 {
-    protected $fillable = ['state_id', 'name', 'inegi_code', 'is_active'];
+    use BelongsToClinicOrGlobal;
+
+    protected $fillable = ['clinic_id', 'state_id', 'name', 'inegi_code', 'is_active'];
 
     protected $casts = [
         'is_active' => 'boolean',

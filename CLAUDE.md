@@ -178,7 +178,9 @@ Sin excepciones para marcar una task como terminada.
 ## Componentes UI (PrimeVue preferido)
 
 - Inputs de texto: `InputText` + `FloatLabel` variant="on".
+- Inputs de captura en formularios: preferir `IconField` + `InputIcon` alrededor de `InputText` cuando el icono agregue contexto útil al dato.
 - Selects / dropdowns: `Select` + `FloatLabel` (uno por filtro, no `<select>` nativo).
+- Fechas / calendarios: `DatePicker` de PrimeVue + `FloatLabel`. No usar `InputText type="date"` ni inputs nativos para fechas.
 - Badges / etiquetas de roles y estado: `Chip` de PrimeVue con icono si aplica.
 - Checkboxes: `Checkbox` de PrimeVue en modo `binary`.
 - Botones con efecto de clic: agregar directiva `v-ripple` a acciones importantes (guardar, activar, desactivar, eliminar) mediante `app.directive('ripple', Ripple)`. NO usar `ripple: true` en global config de PrimeVue (rompe FloatLabel+Select).
