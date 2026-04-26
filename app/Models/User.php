@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Contracts\Integrations\MediaStorage;
 use App\Domain\Clinic\Models\Clinic;
 use App\Domain\Clinic\Models\ClinicBranch;
+use App\Domain\User\Models\UserBranchPermission;
 use App\Domain\User\Models\UserBranchRole;
 use App\Support\Tenancy\BelongsToClinic;
 use Database\Factories\UserFactory;
@@ -120,6 +121,11 @@ class User extends Authenticatable implements Auditable
     public function branchRoles(): HasMany
     {
         return $this->hasMany(UserBranchRole::class);
+    }
+
+    public function userBranchPermissions(): HasMany
+    {
+        return $this->hasMany(UserBranchPermission::class);
     }
 
     /** @param Builder<User> $query */

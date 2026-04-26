@@ -47,7 +47,24 @@ class UserController extends Controller
     {
         $this->authorize('view', $user);
 
-        return Inertia::render('Clinic/Users/Show', ['user' => $user->load(['branch', 'roles', 'permissions', 'branchRoles.branch']), 'effectivePermissions' => $user->getAllPermissions()->values(), ...$this->formProps()]);
+        $loaded = $user->load([
+            'branch',
+            'roles',
+            'permissions',
+            'branchRoles.branch',
+            'userBranchPermissions',
+        ]);
+
+        $userBranchPermissions = $loaded->userBranchPermissions
+            ->map(fn ($permission) => ['branch_id' => $permission->branch_id, 'permission' => $permission->permission])
+            ->values()
+            ->all();
+
+        return Inertia::render('Clinic/Users/Show', [
+            'user' => array_merge($loaded->toArray(), ['user_branch_permissions' => $userBranchPermissions]),
+            'effectivePermissions' => $user->getAllPermissions()->values(),
+            ...$this->formProps(),
+        ]);
     }
 
     public function edit(string $clinic, User $user): Response
