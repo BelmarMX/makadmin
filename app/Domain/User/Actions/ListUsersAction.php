@@ -17,7 +17,7 @@ class ListUsersAction
             ->with(['branchRoles' => fn ($query) => $query->with('branch:id,name')])
             ->when($request->integer('branch_id') > 0, fn ($query) => $query->whereHas(
                 'branchRoles',
-                fn ($branchRoleQuery) => $branchRoleQuery->where('branch_id', $request->integer('branch_id'))
+                fn ($branchQuery) => $branchQuery->where('branch_id', $request->integer('branch_id'))
             ))
             ->when($request->filled('role'), fn ($query) => $query->role($request->string('role')->toString()))
             ->when($request->string('status')->toString() === 'active', fn ($query) => $query->active())

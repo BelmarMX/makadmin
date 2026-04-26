@@ -1,6 +1,16 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { BadgeCheck, CircleDollarSign, ConciergeBell, Mail, MapPin, Pencil, Scissors, ShieldCheck, Stethoscope } from 'lucide-vue-next';
+import {
+    BadgeCheck,
+    CircleDollarSign,
+    ConciergeBell,
+    Mail,
+    MapPin,
+    Pencil,
+    Scissors,
+    ShieldCheck,
+    Stethoscope,
+} from 'lucide-vue-next';
 import Chip from 'primevue/chip';
 import type { Component } from 'vue';
 import UserStatusBadge from '@/components/domain/User/UserStatusBadge.vue';
