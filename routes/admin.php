@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ClinicAdminController;
 use App\Http\Controllers\Admin\ClinicBranchController;
 use App\Http\Controllers\Admin\ClinicController;
 use App\Http\Controllers\Admin\ClinicModuleController;
+use App\Http\Controllers\Admin\ClinicRoleModuleController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
@@ -36,6 +37,8 @@ Route::prefix('clinics')->name('admin.clinics.')->group(function () {
 
     Route::post('/{clinic}/invite-admin', [ClinicAdminController::class, 'invite'])->name('invite-admin');
     Route::post('/{clinic}/users/{user}/verify-email', [ClinicAdminController::class, 'verifyEmail'])->name('users.verify-email');
+    Route::get('/{clinic}/role-modules/{role}', [ClinicRoleModuleController::class, 'show'])->name('role-modules.show');
+    Route::put('/{clinic}/role-modules', [ClinicRoleModuleController::class, 'update'])->name('role-modules.update');
 
     Route::post('/{clinic}/logo', [ClinicController::class, 'uploadLogo'])->name('upload-logo');
     Route::delete('/{clinic}/logo', [ClinicController::class, 'destroyLogo'])->name('destroy-logo');

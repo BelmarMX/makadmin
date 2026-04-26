@@ -12,6 +12,7 @@ use App\Domain\Clinic\DataTransferObjects\ClinicData;
 use App\Domain\Clinic\Enums\FiscalRegime;
 use App\Domain\Clinic\Enums\ModuleKey;
 use App\Domain\Clinic\Models\Clinic;
+use App\Domain\Clinic\Models\ClinicRoleModule;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreClinicRequest;
 use App\Http\Requests\Admin\UpdateClinicRequest;
@@ -81,9 +82,14 @@ class ClinicController extends Controller
         $this->authorize('view', $clinic);
 
         $clinic->load(['branches', 'modules', 'users']);
+        $roleModuleConfig = ClinicRoleModule::where('clinic_id', $clinic->id)
+            ->get(['role', 'module_key', 'is_enabled'])
+            ->toArray();
 
         return Inertia::render('Admin/Clinics/Show', [
-            'clinic' => $clinic->append('subdomain_url'),
+            'clinic' => array_merge($clinic->append('subdomain_url')->toArray(), [
+                'roleModuleConfig' => $roleModuleConfig,
+            ]),
             'modules' => collect(ModuleKey::cases())->map(fn (ModuleKey $m) => [
                 'key' => $m->value,
                 'label' => $m->label(),

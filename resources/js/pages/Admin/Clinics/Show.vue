@@ -1,7 +1,22 @@
 <script setup lang="ts">
-import { Head, Link, useForm, router, usePage } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
-import { ExternalLink, Plus, UserPlus, ShieldCheck, AlertCircle, ImageIcon } from 'lucide-vue-next';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
+import {
+    AlertCircle,
+    BadgeCheck,
+    CircleDollarSign,
+    ConciergeBell,
+    ExternalLink,
+    ImageIcon,
+    Plus,
+    Save,
+    Scissors,
+    ShieldCheck,
+    Stethoscope,
+    UserPlus,
+} from 'lucide-vue-next';
+import Checkbox from 'primevue/checkbox';
+import { computed, onMounted, ref } from 'vue';
+import type { Component } from 'vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import ClinicStatusBadge from '@/components/domain/Clinic/ClinicStatusBadge.vue';
 import ModuleToggleCard from '@/components/domain/Clinic/ModuleToggleCard.vue';
@@ -15,6 +30,7 @@ import { Badge } from '@/components/ui/badge';
 import * as clinicRoutes from '@/actions/App/Http/Controllers/Admin/ClinicController';
 import * as branchRoutes from '@/actions/App/Http/Controllers/Admin/ClinicBranchController';
 import * as adminRoutes from '@/actions/App/Http/Controllers/Admin/ClinicAdminController';
+import * as roleModuleRoutes from '@/actions/App/Http/Controllers/Admin/ClinicRoleModuleController';
 
 defineOptions({ layout: AdminLayout });
 
@@ -37,9 +53,28 @@ const props = defineProps<{
         subdomain_url: string;
         branches: Array<{ id: number; name: string; address: string; phone?: string | null; is_main: boolean; is_active: boolean }>;
         users: Array<{ id: number; name: string; email: string; email_verified_at: string | null }>;
+        roleModuleConfig: Array<{ role: string; module_key: string; is_enabled: boolean }>;
     };
     modules: Array<{ key: string; label: string; description: string; icon: string; dependsOn: string[]; active: boolean }>;
 }>();
+
+const roleIcons: Record<string, Component> = {
+    clinic_admin: ShieldCheck,
+    veterinarian: Stethoscope,
+    groomer: Scissors,
+    receptionist: ConciergeBell,
+    cashier: CircleDollarSign,
+};
+
+const availableRoles = [
+    { value: 'clinic_admin', label: 'Administrador de clínica' },
+    { value: 'veterinarian', label: 'Veterinario' },
+    { value: 'groomer', label: 'Esteticista' },
+    { value: 'receptionist', label: 'Recepcionista' },
+    { value: 'cashier', label: 'Cajero' },
+];
+
+const roleModuleState = ref<Record<string, Record<string, boolean>>>({});
 
 // Branch creation form
 const showBranchForm = ref(false);
@@ -78,6 +113,48 @@ function verifyEmail(userId: number) {
         {},
         { preserveScroll: true },
     );
+}
+
+function initRoleModuleState() {
+    for (const role of availableRoles) {
+        roleModuleState.value[role.value] = {};
+
+        for (const module of props.modules) {
+            const row = props.clinic.roleModuleConfig?.find(
+                (config) => config.role === role.value && config.module_key === module.key,
+            );
+
+            roleModuleState.value[role.value][module.key] = row ? row.is_enabled : true;
+        }
+    }
+}
+
+onMounted(() => initRoleModuleState());
+
+function isRoleModuleEnabled(role: string, moduleKey: string): boolean {
+    return roleModuleState.value[role]?.[moduleKey] ?? true;
+}
+
+function toggleRoleModule(role: string, moduleKey: string, enabled: boolean) {
+    if (!roleModuleState.value[role]) {
+        roleModuleState.value[role] = {};
+    }
+
+    roleModuleState.value[role][moduleKey] = enabled;
+}
+
+function saveRoleModules() {
+    for (const role of availableRoles) {
+        const enabledModules = Object.entries(roleModuleState.value[role.value] ?? {})
+            .filter(([, enabled]) => enabled)
+            .map(([key]) => key);
+
+        router.put(
+            roleModuleRoutes.update({ clinic: props.clinic.id }).url,
+            { role: role.value, enabled_modules: enabledModules },
+            { preserveScroll: true },
+        );
+    }
 }
 </script>
 
@@ -126,11 +203,12 @@ function verifyEmail(userId: number) {
 
         <!-- Tabs -->
         <Tabs default-value="general">
-            <TabsList class="grid w-full grid-cols-4">
+            <TabsList class="grid w-full grid-cols-5">
                 <TabsTrigger value="general">General</TabsTrigger>
                 <TabsTrigger value="branches">Sucursales</TabsTrigger>
                 <TabsTrigger value="modules">Módulos</TabsTrigger>
                 <TabsTrigger value="users">Usuarios</TabsTrigger>
+                <TabsTrigger value="role-modules">Roles y módulos</TabsTrigger>
             </TabsList>
 
             <!-- General -->
@@ -286,6 +364,48 @@ function verifyEmail(userId: number) {
                                 </div>
                             </div>
                         </div>
+                    </CardContent>
+                </Card>
+            </TabsContent>
+
+            <TabsContent value="role-modules">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Acceso por rol</CardTitle>
+                        <p class="text-sm text-muted-foreground">
+                            Configura qué módulos puede ver cada rol en esta clínica.
+                            Los cambios aplican al acceso del rol para todos sus usuarios.
+                        </p>
+                    </CardHeader>
+                    <CardContent class="space-y-6">
+                        <div v-for="role in availableRoles" :key="role.value" class="space-y-3">
+                            <h3 class="flex items-center gap-2 text-sm font-semibold text-foreground">
+                                <component :is="roleIcons[role.value] ?? BadgeCheck" class="h-4 w-4 text-muted-foreground" />
+                                {{ role.label }}
+                            </h3>
+                            <div class="grid grid-cols-2 gap-2 md:grid-cols-3 2xl:grid-cols-4">
+                                <label
+                                    v-for="module in props.modules"
+                                    :key="`${role.value}-${module.key}`"
+                                    class="flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors hover:border-primary/50"
+                                    :class="isRoleModuleEnabled(role.value, module.key) ? 'border-primary bg-primary/5' : 'border-border'"
+                                >
+                                    <Checkbox
+                                        :model-value="isRoleModuleEnabled(role.value, module.key)"
+                                        binary
+                                        @update:model-value="toggleRoleModule(role.value, module.key, Boolean($event))"
+                                    />
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-medium text-foreground">{{ module.label }}</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <Button v-ripple @click="saveRoleModules">
+                            <Save class="h-4 w-4" />
+                            Guardar configuración
+                        </Button>
                     </CardContent>
                 </Card>
             </TabsContent>
