@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Plus, Search, X, Users } from 'lucide-vue-next';
+import FloatLabel from 'primevue/floatlabel';
+import Select from 'primevue/select';
 import { ref, watch } from 'vue';
 import UserCard from '@/components/domain/User/UserCard.vue';
 import { Button } from '@/components/ui/button';
@@ -19,8 +21,7 @@ const props = defineProps<{
             phone?: string | null;
             avatar?: string | null;
             is_active: boolean;
-            branch?: { id: number; name: string } | null;
-            roles?: Array<{ id: number; name: string }>;
+            branch_roles: Array<{ branch_id: number; role: string; branch: { id: number; name: string } | null }>;
         }>;
         links: Array<{ url: string | null; label: string; active: boolean }>;
     };
@@ -31,10 +32,18 @@ const props = defineProps<{
 
 const clinic = window.location.hostname.split('.')[0];
 const search = ref(props.filters.search ?? '');
-const branchId = ref(props.filters.branch_id ? String(props.filters.branch_id) : '');
-const role = ref(props.filters.role ?? '');
-const status = ref(props.filters.status ?? '');
+const branchId = ref<number | null>(props.filters.branch_id ?? null);
+const role = ref<string | null>(props.filters.role ?? null);
+const status = ref<string | null>(props.filters.status ?? null);
 let debounceTimer: ReturnType<typeof setTimeout>;
+
+const branchOptions = [{ id: null, name: 'Todas las sucursales' }, ...props.branches];
+const roleOptions = [{ value: null, label: 'Todos los roles' }, ...props.roles];
+const statusOptions = [
+    { value: null, label: 'Todos' },
+    { value: 'active', label: 'Activos' },
+    { value: 'inactive', label: 'Inactivos' },
+];
 
 watch([search, branchId, role, status], () => {
     clearTimeout(debounceTimer);
@@ -54,9 +63,9 @@ watch([search, branchId, role, status], () => {
 
 function clearFilters() {
     search.value = '';
-    branchId.value = '';
-    role.value = '';
-    status.value = '';
+    branchId.value = null;
+    role.value = null;
+    status.value = null;
 }
 </script>
 
@@ -69,8 +78,8 @@ function clearFilters() {
                 <h1 class="text-2xl font-bold text-foreground">Usuarios</h1>
                 <p class="text-sm text-muted-foreground">Equipo, roles y accesos de la clínica.</p>
             </div>
-            <Button as-child>
-                    <Link :href="userRoutes.create(clinic).url">
+            <Button as-child v-ripple>
+                <Link :href="userRoutes.create(clinic).url">
                     <Plus class="h-4 w-4" />
                     Nuevo usuario
                 </Link>
@@ -89,19 +98,42 @@ function clearFilters() {
                     <X class="h-4 w-4" />
                 </button>
             </div>
-            <select v-model="branchId" class="h-9 rounded-md border border-input bg-background px-3 text-sm">
-                <option value="">Todas las sucursales</option>
-                <option v-for="branch in branches" :key="branch.id" :value="branch.id">{{ branch.name }}</option>
-            </select>
-            <select v-model="role" class="h-9 rounded-md border border-input bg-background px-3 text-sm">
-                <option value="">Todos los roles</option>
-                <option v-for="item in roles" :key="item.value" :value="item.value">{{ item.label }}</option>
-            </select>
-            <select v-model="status" class="h-9 rounded-md border border-input bg-background px-3 text-sm">
-                <option value="">Todos</option>
-                <option value="active">Activos</option>
-                <option value="inactive">Inactivos</option>
-            </select>
+
+            <FloatLabel variant="on">
+                <Select
+                    v-model="branchId"
+                    :options="branchOptions"
+                    option-label="name"
+                    option-value="id"
+                    input-id="filter-branch"
+                    class="w-full"
+                />
+                <label for="filter-branch">Sucursal</label>
+            </FloatLabel>
+
+            <FloatLabel variant="on">
+                <Select
+                    v-model="role"
+                    :options="roleOptions"
+                    option-label="label"
+                    option-value="value"
+                    input-id="filter-role"
+                    class="w-full"
+                />
+                <label for="filter-role">Rol</label>
+            </FloatLabel>
+
+            <FloatLabel variant="on">
+                <Select
+                    v-model="status"
+                    :options="statusOptions"
+                    option-label="label"
+                    option-value="value"
+                    input-id="filter-status"
+                    class="w-full"
+                />
+                <label for="filter-status">Estado</label>
+            </FloatLabel>
         </div>
 
         <div
