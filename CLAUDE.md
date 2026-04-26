@@ -173,3 +173,14 @@ Sin excepciones para marcar una task como terminada.
 - Commits con secretos, tokens o datos reales sensibles.
 - Desactivar global scopes de tenancy para debug.
 - Nunca ejecutar `php artisan migrate:fresh` ni `php artisan migrate:refresh`.
+
+## Componentes UI (PrimeVue preferido)
+
+- Inputs de texto: `InputText` + `FloatLabel` variant="on".
+- Selects / dropdowns: `Select` + `FloatLabel` (uno por filtro, no `<select>` nativo).
+- Badges / etiquetas de roles y estado: `Chip` de PrimeVue con icono si aplica.
+- Checkboxes: `Checkbox` de PrimeVue en modo `binary`.
+- Botones con efecto de clic: agregar directiva `v-ripple` a acciones importantes (guardar, activar, desactivar, eliminar).
+- Shadcn Button / Card / Avatar / Badge se mantienen para estructura de layout.
+- No mezclar `<select>` nativo con PrimeVue en la misma vista.
+- UI siempre en español latinoamericano. Nunca mostrar claves internas (ej. `clinic_admin`, `veterinarian`) directamente al usuario; usar `roleLabel()` de `@/lib/userLabels`.

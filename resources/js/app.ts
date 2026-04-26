@@ -1,6 +1,7 @@
 import { createInertiaApp } from '@inertiajs/vue3';
 import Aura from '@primeuix/themes/aura';
 import PrimeVue from 'primevue/config';
+import Ripple from 'primevue/ripple';
 import { initializeTheme } from '@/composables/useAppearance';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
@@ -35,6 +36,7 @@ createInertiaApp({
                 },
             },
         });
+        app.directive('ripple', Ripple);
     },
 });
 
