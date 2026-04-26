@@ -226,34 +226,21 @@ Vue components must have a single root element.
 <claude-mem-context>
 # Memory Context
 
-# [makadmin] recent context, 2026-04-25 12:46am CST
+# [makadmin] recent context, 2026-04-25 6:02pm CST
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 50 obs (17,349t read) | 343,270t work | 95% savings
+Stats: 50 obs (18,836t read) | 604,586t work | 97% savings
 
 ### Apr 23, 2026
 S9 makadmin: Verify Email Button Broken — email_verified_at Not in $fillable (Apr 23 at 9:40 PM)
 S8 VetFollow makadmin: Global UI/UX Rules Capture Pre-Task 02 (Apr 23 at 9:40 PM)
-70 9:45p ✅ Clinics/Edit.vue: Dense Responsive Grid Layout + Primary Color Field Added
-71 9:46p ✅ Clinic Wizard Step Components: Duplicate Field Removed + Fiscal Grid Expanded
-72 9:53p 🔵 VetFollow makadmin: Verify Email Button Bug Investigation — Route & User State
-73 " 🔵 makadmin Routing Architecture: Subdomain-Based Admin vs Clinic Separation
-74 9:55p 🔴 makadmin: Verify Email Button Broken — email_verified_at Not in $fillable
 S13 makadmin: Unified sidebar by domain context + global pro search + CLAUDE.md update (§20-22) (Apr 23 at 9:55 PM)
-75 9:59p 🔵 makadmin: Sidebar Theme Toggle Causes Menu State Reset Bug
-76 10:00p 🔵 makadmin: useAppearance Composable Architecture — Theme Persistence Mechanism
-77 10:01p ✅ makadmin: AppSidebar.vue Refactored to Use Computed Navigation Items
-78 " 🟣 makadmin: AdminSidebar Gets Inline Theme Toggle in Footer
-79 10:02p ✅ makadmin: UI Localized to Spanish — User Menu, Settings Nav, and Headings
-80 10:08p 🟣 makadmin: Inertia Context Resolution for Role-Aware Sidebar
-81 " 🔄 makadmin: AdminSidebar Replaced by Unified AppSidebar
-83 10:09p 🟣 makadmin: Pro Search Added to Clinics Index
-84 10:10p ✅ makadmin: CLAUDE.md Updated with Mandatory UI/UX Standards
-85 " ✅ makadmin: CLAUDE.md Sections §20-22 — Sidebar Architecture, Search Pattern, Dev Gotchas
+85 10:10p ✅ makadmin: CLAUDE.md Sections §20-22 — Sidebar Architecture, Search Pattern, Dev Gotchas
 87 10:11p 🔴 makadmin: orWhereIlike() Undefined on Eloquent Builder — Fixed with orWhere('ilike')
+S16 makadmin Task 02 — Catálogos Base: Completed 2026-04-24 (Apr 23 at 10:11 PM)
 91 10:17p ⚖️ makadmin: Task 02 Catálogos Base — Full Architecture Plan
 92 " 🟣 makadmin: Geographic Catalog Migrations Created
 93 10:18p 🟣 makadmin: Catalog Migrations Filled — Countries Schema Implemented
@@ -285,11 +272,26 @@ S13 makadmin: Unified sidebar by domain context + global pro search + CLAUDE.md 
 120 " 🔴 VeterinaryCatalogPolicy $is_system Access Fixed via getAttribute()
 121 " ✅ phpstan.neon Stale Ignore Patterns Removed — PHPStan Now Clean
 122 4:29p 🟣 makadmin Task 02 — Catálogos Base: Completed 2026-04-24
-S16 makadmin Task 02 — Catálogos Base: Completed 2026-04-24 (Apr 24 at 4:29 PM)
 123 4:39p 🟣 makadmin: Clinic Logo + User Avatar Upload Feature Requested
 124 11:07p 🔵 makadmin: Task-02 Pre-Validation State — Repo Has Unstaged Changes
 125 11:08p 🟣 makadmin: Clinic Logo Display in Show and Index Pages
 126 " 🟣 makadmin: Avatar Upload Integration in Profile Settings Page
+### Apr 25, 2026
+127 5:41p 🟣 makadmin: PrimeVue UI Overhaul + User Management — Full Task Scope
+128 5:42p 🔵 makadmin: Project Structure + PrimeVue Status Mapped
+130 " 🔵 makadmin: PrimeVue Fully Configured — Aura Theme + Checkbox Already In Use
+131 " 🔵 makadmin: Layout Margin Bug — Clinic Layout Missing p-4 Wrapper
+132 " 🔵 makadmin: Multi-Branch User Support Broken in UI — Single Branch Shown Everywhere
+133 " 🔵 makadmin: Superadmin Clinic Users Tab — Read-Only, No Management Controls
+134 " 🔵 makadmin: AppSidebar Shows All Links — No Permission-Based Visibility
+135 " 🔵 makadmin: userLabels.ts — Spanish Labels for Roles, Modules, Permissions Already Defined
+S18 makadmin: PrimeVue UI Overhaul + User Management Improvements — Context Exploration Phase (Apr 25 at 5:43 PM)
+136 5:48p 🔵 makadmin: Task 03 — Usuarios y Roles Implementation Spec Found
+137 5:49p ✅ makadmin: Task Progress — Tasks 2 & 3 Completed, Task 4 Started
+138 5:51p 🟣 makadmin: Task 04 Design Spec — PrimeVue UI Integration + User Management Expansion
+139 " 🔵 makadmin: HandleInertiaRequests Does Not Share auth.permissions
+140 5:52p 🔵 makadmin: Existing User/Permission Architecture — Full Structure Confirmed
+141 5:58p 🟣 makadmin: Codex Implementation Plan Written — PrimeVue UI + User Management (10 Tasks)
 
-Access 343k tokens of past work via get_observations([IDs]) or mem-search skill.
+Access 605k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>

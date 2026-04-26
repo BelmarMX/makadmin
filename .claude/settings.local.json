@@ -32,7 +32,8 @@
       "Bash(sed -n '55,85p' /Volumes/Thunder/www/makadmin/app/Models/User.php)",
       "Bash(vendor/bin/pint app/Http/Requests/Admin/StoreClinicRequest.php app/Domain/Clinic/Actions/CreateClinicAction.php app/Http/Controllers/Admin/ClinicController.php)",
       "Skill(codex:setup)",
-      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\('status'\\), d.get\\('phase'\\), d.get\\('summary',''\\)[:120]\\)\")"
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\('status'\\), d.get\\('phase'\\), d.get\\('summary',''\\)[:120]\\)\")",
+      "Skill(codex:rescue)"
     ]
   },
   "enableAllProjectMcpServers": true,
