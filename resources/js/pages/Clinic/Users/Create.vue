@@ -5,12 +5,14 @@ import FloatLabel from 'primevue/floatlabel';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 import { ref } from 'vue';
+import { toast } from '@/lib/toast';
 import CropModal from '@/components/CropModal.vue';
 import ImageUploadCircle from '@/components/ImageUploadCircle.vue';
 import BranchRolesEditor from '@/components/domain/User/BranchRolesEditor.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { clinicSlug } from '@/composables/useClinicSlug';
 import * as userRoutes from '@/actions/App/Http/Controllers/Clinic/UserController';
 
 defineOptions({ layout: AppLayout });
@@ -20,7 +22,7 @@ defineProps<{
     roles: Array<{ value: string; label: string }>;
 }>();
 
-const clinic = window.location.hostname.split('.')[0];
+const clinic = clinicSlug();
 const cropOpen = ref(false);
 const cropSrc = ref<string | null>(null);
 const avatarPreview = ref<string | null>(null);
@@ -74,7 +76,11 @@ function removeSelectedAvatar() {
 
 function submit() {
     syncRolePayload();
-    form.post(userRoutes.store(clinic).url, { forceFormData: true });
+    form.post(userRoutes.store(clinic).url, {
+        forceFormData: true,
+        onSuccess: () => toast.success('Usuario creado'),
+        onError: () => toast.error('Error al crear usuario'),
+    });
 }
 </script>
 

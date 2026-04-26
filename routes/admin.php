@@ -44,6 +44,7 @@ Route::prefix('clinics')->name('admin.clinics.')->group(function () {
     Route::delete('/{clinic}/users/{user}', [ClinicUserController::class, 'destroy'])->name('users.destroy');
     Route::get('/{clinic}/role-modules/{role}', [ClinicRoleModuleController::class, 'show'])->name('role-modules.show');
     Route::put('/{clinic}/role-modules', [ClinicRoleModuleController::class, 'update'])->name('role-modules.update');
+    Route::post('/{clinic}/role-modules/restore', [ClinicRoleModuleController::class, 'restore'])->name('role-modules.restore');
 
     Route::post('/{clinic}/logo', [ClinicController::class, 'uploadLogo'])->name('upload-logo');
     Route::delete('/{clinic}/logo', [ClinicController::class, 'destroyLogo'])->name('destroy-logo');

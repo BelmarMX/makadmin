@@ -47,6 +47,10 @@ No hardcodear colores si existe token semántico.
 - shadcn-vue como fallback.
 - Iconos: lucide-vue-next.
 - Animación: `@vueuse/core` y transiciones Vue nativas.
+- Toast: PrimeVue Toast con `ToastService` + `<Toast position="top-right" />` en layouts. Helper `@/lib/toast.ts` expone `toast.success()`, `toast.error()`, `toast.info()`, `toast.warning()`. No usar vue-sonner.
+- Font-size PrimeVue: html base 16px. Componentes PrimeVue escalan a 14px via `.p-component { font-size: 0.875rem }`. No cambiar html font-size.
+- FloatLabel sentinelas: para opciones "Todos" en filters NO usar `null` (rompe estado filled). Usar `{ id: 0, name: 'Todos' }` para números, `{ value: '__all__', label: 'Todos' }` para strings.
+- FloatLabel CSS override: PrimeVue inyecta estilos en runtime. Usar `[data-pc-name="floatlabel"] { height: fit-content !important }` para forzar altura automática.
 - No usar GSAP ni Framer.
 
 ## Formularios
@@ -90,6 +94,13 @@ A 1366px: 2 columnas. A ≥1536px: 4 columnas.
 - Filtros como chips.
 - Paginación cursor-based para listas grandes.
 - Estados vacíos diferenciados.
+
+## PermissionGrid
+
+- `toggleModule` va en la primera `<td>` (nombre del módulo), no en el `<tr>`.
+- El `<td>` del checkbox NO lleva `@click`. Solo el checkbox maneja su toggle.
+- Sincronizar `form.data.branch_id` via `watch` de `props.branchId` (el form se crea una vez en mount, no se actualiza solo).
+- Las URLs de acción pasan `?branch_id=` como query param; el form también envía `branch_id` en el body.
 
 ## Buscador obligatorio en listados
 

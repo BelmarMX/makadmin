@@ -11,10 +11,6 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
-    config(['branding.apex_domain' => 'vetfollow.test']);
-});
-
 test('blocks cross-clinic access at global scope', function () {
     $clinicA = Clinic::create([
         'slug' => 'clinic-a',
@@ -137,3 +133,72 @@ test('www subdomain returns 404 via middleware', function () {
     $middleware = app(ResolveClinic::class);
     $middleware->handle($request, fn () => response('ok'));
 })->throws(HttpException::class);
+
+test('authenticated user cannot access different clinic subdomain', function () {
+    $apex = config('branding.apex_domain');
+
+    $clinicA = Clinic::create([
+        'slug' => 'cross-clinic-a',
+        'legal_name' => 'Cross Clinic A SA',
+        'commercial_name' => 'Cross Clinic A',
+        'responsible_vet_name' => 'Dr A',
+        'responsible_vet_license' => '777',
+        'contact_phone' => '5500000007',
+        'contact_email' => 'crossa@test.com',
+    ]);
+
+    Clinic::create([
+        'slug' => 'cross-clinic-b',
+        'legal_name' => 'Cross Clinic B SA',
+        'commercial_name' => 'Cross Clinic B',
+        'responsible_vet_name' => 'Dr B',
+        'responsible_vet_license' => '888',
+        'contact_phone' => '5500000008',
+        'contact_email' => 'crossb@test.com',
+    ]);
+
+    $user = User::factory()->create([
+        'is_super_admin' => false,
+        'clinic_id' => $clinicA->id,
+    ]);
+
+    $response = $this->actingAs($user)
+        ->get('http://cross-clinic-b.'.$apex.'/');
+
+    $response->assertForbidden();
+});
+
+test('super admin can access any clinic subdomain', function () {
+    $apex = 'makadmin.test';
+    config(['branding.apex_domain' => $apex]);
+
+    $clinicA = Clinic::create([
+        'slug' => 'super-cross-a',
+        'legal_name' => 'Super Cross A SA',
+        'commercial_name' => 'Super Cross A',
+        'responsible_vet_name' => 'Dr SA',
+        'responsible_vet_license' => '999',
+        'contact_phone' => '5500000009',
+        'contact_email' => 'supera@test.com',
+    ]);
+
+    Clinic::create([
+        'slug' => 'super-cross-b',
+        'legal_name' => 'Super Cross B SA',
+        'commercial_name' => 'Super Cross B',
+        'responsible_vet_name' => 'Dr SB',
+        'responsible_vet_license' => '000',
+        'contact_phone' => '5500000010',
+        'contact_email' => 'superb@test.com',
+    ]);
+
+    $superAdmin = User::factory()->create([
+        'is_super_admin' => true,
+        'clinic_id' => $clinicA->id,
+    ]);
+
+    $response = $this->actingAs($superAdmin)
+        ->get('http://super-cross-b.'.$apex.'/');
+
+    $response->assertOk();
+});

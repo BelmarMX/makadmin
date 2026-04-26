@@ -19,12 +19,13 @@ import * as adminDashboard from '@/actions/App/Http/Controllers/Admin/AdminDashb
 import * as clinicRoutes from '@/actions/App/Http/Controllers/Admin/ClinicController';
 import * as clinicUserRoutes from '@/actions/App/Http/Controllers/Clinic/UserController';
 import { useAppearance } from '@/composables/useAppearance';
+import { clinicSlug } from '@/composables/useClinicSlug';
 import { dashboard } from '@/routes';
 import type { NavItem, SharedPageProps } from '@/types';
 
 const page = usePage<SharedPageProps>();
 const { appearance, updateAppearance } = useAppearance();
-const clinic = window.location.hostname.split('.')[0];
+const clinic = clinicSlug();
 
 const context = computed(() => page.props.context ?? 'app');
 const authUser = computed(() => page.props.auth?.user);

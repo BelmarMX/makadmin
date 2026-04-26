@@ -28,7 +28,7 @@ Route::domain(config('branding.superadmin_subdomain').'.'.config('branding.apex_
 
 // Clinic subdomain
 Route::domain('{clinic}.'.config('branding.apex_domain'))->group(function () {
-    Route::middleware(['tenant', 'auth'])->group(function () {
+    Route::middleware(['tenant', 'auth', 'clinic-access'])->group(function () {
         Route::get('/', [ClinicDashboardController::class, 'index'])->name('clinic.dashboard');
 
         Route::prefix('users')->name('clinic.users.')->group(function () {

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureClinicAccess;
 use App\Http\Middleware\EnsureModuleActive;
 use App\Http\Middleware\EnsureSuperAdmin;
 use App\Http\Middleware\HandleAppearance;
@@ -31,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'tenant' => ResolveClinic::class,
+            'clinic-access' => EnsureClinicAccess::class,
             'module' => EnsureModuleActive::class,
             'permission' => PermissionMiddleware::class,
             'role' => RoleMiddleware::class,

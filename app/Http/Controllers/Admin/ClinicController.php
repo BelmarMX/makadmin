@@ -44,7 +44,7 @@ class ClinicController extends Controller
             ->withQueryString();
 
         return Inertia::render('Admin/Clinics/Index', [
-            'clinics' => $clinics,
+            'clinics' => $clinics->through(fn ($clinic) => $clinic->append('subdomain_url')),
             'filters' => ['search' => $search],
         ]);
     }

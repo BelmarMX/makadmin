@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ArrowLeft, BadgeCheck, CircleDollarSign, ConciergeBell, GraduationCap, MapPin, Pencil, Phone, Power, RotateCcw, Scissors, ShieldCheck, Stethoscope } from 'lucide-vue-next';
+import { ArrowLeft, BadgeCheck, CircleDollarSign, ConciergeBell, GraduationCap, MapPin, Pencil, Phone, Power, RotateCcw, Scissors, ShieldCheck, Star, Stethoscope } from 'lucide-vue-next';
 import Chip from 'primevue/chip';
 import { computed, ref } from 'vue';
+import { toast } from '@/lib/toast';
 import type { Component } from 'vue';
 import PermissionGrid from '@/components/domain/User/PermissionGrid.vue';
 import UserStatusBadge from '@/components/domain/User/UserStatusBadge.vue';
@@ -11,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { roleLabel } from '@/lib/userLabels';
+import { clinicSlug } from '@/composables/useClinicSlug';
 import * as permissionRoutes from '@/actions/App/Http/Controllers/Clinic/UserPermissionController';
 import * as userRoutes from '@/actions/App/Http/Controllers/Clinic/UserController';
 
@@ -35,7 +37,7 @@ const props = defineProps<{
     effectivePermissions: Array<{ id: number; name: string }>;
 }>();
 
-const clinic = window.location.hostname.split('.')[0];
+const clinic = clinicSlug();
 
 const roleIcons: Record<string, Component> = {
     clinic_admin: ShieldCheck,
@@ -89,9 +91,14 @@ const selectedBranchPermissions = computed(() => {
         return props.effectivePermissions;
     }
 
-    return (props.user.user_branch_permissions ?? [])
-        .filter((permission) => permission.branch_id === selectedBranchId.value)
-        .map((permission, index) => ({ id: index, name: permission.permission }));
+    const branchPerms = (props.user.user_branch_permissions ?? [])
+        .filter((permission) => permission.branch_id === selectedBranchId.value);
+
+    if (branchPerms.length === 0) {
+        return props.effectivePermissions;
+    }
+
+    return branchPerms.map((permission, index) => ({ id: index, name: permission.permission }));
 });
 
 const permissionActionUrl = computed(() => {
@@ -101,11 +108,19 @@ const permissionActionUrl = computed(() => {
 });
 
 function deactivate() {
-    router.post(userRoutes.deactivate({ clinic, user: props.user.id }).url, {}, { preserveScroll: true });
+    router.post(userRoutes.deactivate({ clinic, user: props.user.id }).url, {}, {
+        preserveScroll: true,
+        onSuccess: () => toast.success('Usuario desactivado'),
+        onError: () => toast.error('Error al desactivar usuario'),
+    });
 }
 
 function restore() {
-    router.post(userRoutes.restore({ clinic, user: props.user.id }).url, {}, { preserveScroll: true });
+    router.post(userRoutes.restore({ clinic, user: props.user.id }).url, {}, {
+        preserveScroll: true,
+        onSuccess: () => toast.success('Usuario activado'),
+        onError: () => toast.error('Error al activar usuario'),
+    });
 }
 </script>
 
@@ -126,25 +141,21 @@ function restore() {
                 </div>
             </div>
             <div class="flex gap-2">
-                <Button variant="outline" as-child>
+                <Button variant="outline" as-child v-tooltip.bottom="'Volver a la lista'">
                     <Link :href="userRoutes.index(clinic).url">
                         <ArrowLeft class="h-4 w-4" />
-                        Volver
                     </Link>
                 </Button>
-                <Button variant="outline" as-child>
+                <Button variant="outline" as-child v-tooltip.bottom="'Editar usuario'">
                     <Link :href="userRoutes.edit({ clinic, user: user.id }).url">
                         <Pencil class="h-4 w-4" />
-                        Editar
                     </Link>
                 </Button>
-                <Button v-if="user.is_active" variant="destructive" v-ripple @click="deactivate">
+                <Button v-if="user.is_active" variant="destructive" v-ripple @click="deactivate" v-tooltip.bottom="'Desactivar usuario'">
                     <Power class="h-4 w-4" />
-                    Desactivar
                 </Button>
-                <Button v-else v-ripple @click="restore">
+                <Button v-else v-ripple @click="restore" v-tooltip.bottom="'Activar usuario'">
                     <RotateCcw class="h-4 w-4" />
-                    Activar
                 </Button>
             </div>
         </div>
@@ -167,13 +178,17 @@ function restore() {
                             v-for="group in branchGroups"
                             :key="group.branch.id"
                             type="button"
-                            class="w-full space-y-2 rounded-lg border px-3 py-2.5 text-left transition-colors hover:border-primary/50"
-                            :class="selectedBranchId === group.branch.id ? 'border-primary bg-primary/5' : 'border-border bg-muted/20'"
+                            class="w-full cursor-pointer space-y-2 rounded-lg border px-3 py-2.5 text-left transition-colors hover:border-primary/50"
+                            :class="selectedBranchId === group.branch.id ? 'border-primary bg-primary/1' : 'border-border bg-muted/20'"
                             @click="selectedBranchId = group.branch.id"
                         >
                             <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                                 <MapPin class="h-3.5 w-3.5 shrink-0" />
                                 <span class="truncate">{{ group.branch.name }}</span>
+                                <span v-if="group.branch.id === primaryBranchId" class="flex items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] text-primary">
+                                    <Star class="h-2.5 w-2.5" />
+                                    Principal
+                                </span>
                             </div>
                             <div class="flex flex-wrap gap-1 pl-5">
                                 <Chip v-for="role in group.roles" :key="role" class="!px-2 !py-0.5 !text-xs">

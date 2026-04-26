@@ -5,13 +5,13 @@ import {
     CircleDollarSign,
     ConciergeBell,
     Mail,
-    MapPin,
     Pencil,
+    Phone as PhoneIcon,
     Scissors,
     ShieldCheck,
+    Star,
     Stethoscope,
 } from 'lucide-vue-next';
-import Chip from 'primevue/chip';
 import type { Component } from 'vue';
 import UserStatusBadge from '@/components/domain/User/UserStatusBadge.vue';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import * as userRoutes from '@/actions/App/Http/Controllers/Clinic/UserController';
 import { roleLabel } from '@/lib/userLabels';
+import { clinicSlug } from '@/composables/useClinicSlug';
 
 defineProps<{
     user: {
@@ -28,11 +29,12 @@ defineProps<{
         phone?: string | null;
         avatar?: string | null;
         is_active: boolean;
+        branch_id?: number | null;
         branch_roles: Array<{ branch_id: number; role: string; branch: { id: number; name: string } | null }>;
     };
 }>();
 
-const clinic = window.location.hostname.split('.')[0];
+const clinic = clinicSlug();
 
 const roleIcons: Record<string, Component> = {
     clinic_admin: ShieldCheck,
@@ -90,38 +92,53 @@ function groupedBranches(branchRoles: Array<{ branch_id: number; role: string; b
             <div class="min-w-0 flex-1 space-y-2">
                 <div class="flex items-start justify-between gap-3">
                     <div class="min-w-0">
-                        <Link :href="userRoutes.show({ clinic, user: user.id }).url" class="font-medium text-foreground hover:underline">
+                        <Link
+                            :href="userRoutes.show({ clinic, user: user.id }).url"
+                            class="font-medium text-foreground hover:underline"
+                        >
                             {{ user.name }}
                         </Link>
                         <div class="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
                             <Mail class="h-3.5 w-3.5 shrink-0" />
                             <span class="truncate">{{ user.email }}</span>
                         </div>
+                        <div v-if="user.phone" class="flex items-center gap-2 text-sm text-muted-foreground">
+                            <PhoneIcon class="h-3.5 w-3.5 shrink-0" />
+                            <span>{{ user.phone }}</span>
+                        </div>
                     </div>
                     <UserStatusBadge :active="user.is_active" />
                 </div>
 
-                <div class="space-y-1.5">
-                    <div v-for="group in groupedBranches(user.branch_roles)" :key="group.branch.id" class="space-y-1">
-                        <div class="flex items-center gap-1 text-xs font-medium text-muted-foreground">
-                            <MapPin class="h-3.5 w-3.5 shrink-0" />
-                            <span class="truncate uppercase tracking-wide">{{ group.branch.name }}</span>
+                <div v-if="groupedBranches(user.branch_roles).length" class="grid grid-cols-2 gap-2">
+                    <div
+                        v-for="group in groupedBranches(user.branch_roles)"
+                        :key="group.branch.id"
+                        class="space-y-1 rounded-md border border-border bg-muted/20 p-2"
+                    >
+                        <div class="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                            <span class="truncate">{{ group.branch.name }}</span>
+                            <span v-if="group.branch.id === user.branch_id">
+                                <Star class="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                            </span>
                         </div>
-                        <div class="flex flex-wrap gap-1 pl-4">
-                            <Chip v-for="role in group.roles" :key="role" :label="roleLabel(role)" class="!px-2 !py-0.5 !text-xs">
-                                <template #default>
-                                    <component :is="roleIcon(role)" class="h-3 w-3 shrink-0" />
-                                    <span class="ml-1 text-xs">{{ roleLabel(role) }}</span>
-                                </template>
-                            </Chip>
+                        <div class="flex flex-wrap gap-2">
+                            <span
+                                v-for="role in group.roles"
+                                :key="role"
+                                v-tooltip.bottom="{ value: roleLabel(role) }"
+                                class="inline-flex items-center justify-center rounded-md bg-primary/10 p-1"
+                            >
+                                <component :is="roleIcon(role)" class="h-4 w-4 text-primary" />
+                            </span>
                         </div>
                     </div>
-                    <p v-if="groupedBranches(user.branch_roles).length === 0" class="text-xs text-muted-foreground">Sin sucursal asignada</p>
                 </div>
+                <p v-else class="text-xs text-muted-foreground">Sin sucursal asignada</p>
             </div>
 
-            <Button variant="ghost" size="icon" as-child>
-                <Link :href="userRoutes.edit({ clinic, user: user.id }).url" title="Editar usuario">
+            <Button variant="ghost" size="icon" as-child v-tooltip.left="'Editar usuario'">
+                <Link :href="userRoutes.edit({ clinic, user: user.id }).url">
                     <Pencil class="h-4 w-4" />
                 </Link>
             </Button>

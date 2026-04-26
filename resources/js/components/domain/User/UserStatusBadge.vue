@@ -7,7 +7,10 @@ defineProps<{
 </script>
 
 <template>
-    <Badge :variant="active ? 'default' : 'secondary'">
-        {{ active ? 'Activo' : 'Inactivo' }}
+    <Badge v-if="active" class="bg-success text-white">
+        Activo
+    </Badge>
+    <Badge v-else variant="destructive">
+        Inactivo
     </Badge>
 </template>

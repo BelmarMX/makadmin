@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ArrowLeft, Save } from 'lucide-vue-next';
+import { ArrowLeft, Save, ShieldCheck } from 'lucide-vue-next';
 import FloatLabel from 'primevue/floatlabel';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 import { ref } from 'vue';
+import { toast } from '@/lib/toast';
 import CropModal from '@/components/CropModal.vue';
 import ImageUploadCircle from '@/components/ImageUploadCircle.vue';
 import BranchRolesEditor from '@/components/domain/User/BranchRolesEditor.vue';
@@ -12,6 +13,7 @@ import InputError from '@/components/InputError.vue';
 import UserStatusBadge from '@/components/domain/User/UserStatusBadge.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { clinicSlug } from '@/composables/useClinicSlug';
 import * as userRoutes from '@/actions/App/Http/Controllers/Clinic/UserController';
 
 defineOptions({ layout: AppLayout });
@@ -33,7 +35,7 @@ const props = defineProps<{
     roles: Array<{ value: string; label: string }>;
 }>();
 
-const clinic = window.location.hostname.split('.')[0];
+const clinic = clinicSlug();
 const cropOpen = ref(false);
 const cropSrc = ref<string | null>(null);
 const avatarPreview = ref<string | null>(props.user.avatar ?? null);
@@ -103,6 +105,8 @@ function submit() {
     syncRolePayload();
     form.transform((data) => ({ ...data, _method: 'PUT' })).post(userRoutes.update({ clinic, user: props.user.id }).url, {
         forceFormData: true,
+        onSuccess: () => toast.success('Usuario actualizado'),
+        onError: () => toast.error('Error al actualizar usuario'),
     });
 }
 </script>
@@ -118,10 +122,14 @@ function submit() {
                 <p class="text-sm text-muted-foreground">{{ user.email }}</p>
             </div>
             <div class="flex gap-2">
-                <Button variant="outline" as-child>
-                    <Link :href="userRoutes.show({ clinic, user: user.id }).url">
+                <Button variant="outline" as-child v-tooltip.bottom="'Volver a usuarios'">
+                    <Link :href="userRoutes.index(clinic).url">
                         <ArrowLeft class="h-4 w-4" />
-                        Volver
+                    </Link>
+                </Button>
+                <Button variant="outline" as-child v-tooltip.bottom="'Editar permisos directos'">
+                    <Link :href="userRoutes.show({ clinic, user: user.id }).url">
+                        <ShieldCheck class="h-4 w-4" />
                     </Link>
                 </Button>
                 <Button :disabled="form.processing" v-ripple>

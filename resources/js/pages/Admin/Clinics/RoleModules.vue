@@ -3,6 +3,7 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { ArrowLeft, Save } from 'lucide-vue-next';
 import Checkbox from 'primevue/checkbox';
 import { ref } from 'vue';
+import { toast } from '@/lib/toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AdminLayout from '@/layouts/AdminLayout.vue';
@@ -39,7 +40,11 @@ function save() {
             role: props.role,
             enabled_modules: enabledModules.value,
         },
-        { preserveScroll: true },
+        {
+            preserveScroll: true,
+            onSuccess: () => toast.success('Módulos guardados'),
+            onError: () => toast.error('Error al guardar módulos'),
+        },
     );
 }
 </script>
@@ -76,7 +81,7 @@ function save() {
                     v-for="module in modules"
                     :key="module.key"
                     class="flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors hover:border-primary/50"
-                    :class="isEnabled(module.key) ? 'border-primary bg-primary/5' : 'border-border'"
+                    :class="isEnabled(module.key) ? 'border-primary/30 bg-primary/1' : 'border-border'"
                 >
                     <Checkbox
                         :model-value="isEnabled(module.key)"

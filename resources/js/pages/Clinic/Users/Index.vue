@@ -8,6 +8,7 @@ import UserCard from '@/components/domain/User/UserCard.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { clinicSlug } from '@/composables/useClinicSlug';
 import * as userRoutes from '@/actions/App/Http/Controllers/Clinic/UserController';
 
 defineOptions({ layout: AppLayout });
@@ -21,6 +22,7 @@ const props = defineProps<{
             phone?: string | null;
             avatar?: string | null;
             is_active: boolean;
+            branch_id?: number | null;
             branch_roles: Array<{ branch_id: number; role: string; branch: { id: number; name: string } | null }>;
         }>;
         links: Array<{ url: string | null; label: string; active: boolean }>;
@@ -30,17 +32,17 @@ const props = defineProps<{
     filters: { search: string; branch_id?: number | null; role?: string | null; status?: string | null };
 }>();
 
-const clinic = window.location.hostname.split('.')[0];
+const clinic = clinicSlug();
 const search = ref(props.filters.search ?? '');
-const branchId = ref<number | null>(props.filters.branch_id ?? null);
-const role = ref<string | null>(props.filters.role ?? null);
-const status = ref<string | null>(props.filters.status ?? null);
+const branchId = ref<number>(props.filters.branch_id ?? 0);
+const role = ref<string>(props.filters.role ?? '__all__');
+const status = ref<string>(props.filters.status ?? '__all__');
 let debounceTimer: ReturnType<typeof setTimeout>;
 
-const branchOptions = [{ id: null, name: 'Todas las sucursales' }, ...props.branches];
-const roleOptions = [{ value: null, label: 'Todos los roles' }, ...props.roles];
+const branchOptions = [{ id: 0, name: 'Todas las sucursales' }, ...props.branches];
+const roleOptions = [{ value: '__all__', label: 'Todos los roles' }, ...props.roles];
 const statusOptions = [
-    { value: null, label: 'Todos' },
+    { value: '__all__', label: 'Todos los estados' },
     { value: 'active', label: 'Activos' },
     { value: 'inactive', label: 'Inactivos' },
 ];
@@ -52,9 +54,9 @@ watch([search, branchId, role, status], () => {
             userRoutes.index(clinic).url,
             {
                 search: search.value || undefined,
-                branch_id: branchId.value || undefined,
-                role: role.value || undefined,
-                status: status.value || undefined,
+                branch_id: branchId.value > 0 ? branchId.value : undefined,
+                role: role.value !== '__all__' ? role.value : undefined,
+                status: status.value !== '__all__' ? status.value : undefined,
             },
             { preserveState: true, replace: true },
         );
@@ -63,9 +65,9 @@ watch([search, branchId, role, status], () => {
 
 function clearFilters() {
     search.value = '';
-    branchId.value = null;
-    role.value = null;
-    status.value = null;
+    branchId.value = 0;
+    role.value = '__all__';
+    status.value = '__all__';
 }
 </script>
 

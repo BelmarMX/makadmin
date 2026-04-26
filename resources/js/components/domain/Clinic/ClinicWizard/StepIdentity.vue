@@ -45,7 +45,7 @@ const subdomainPreview = computed(() => props.form.slug ? `${props.form.slug}.${
 
         <div class="space-y-2">
             <Label for="slug">Subdominio <span class="text-destructive">*</span></Label>
-            <div class="flex items-center rounded-md border border-input bg-muted/30">
+            <div class="flex items-center rounded-md border border-input dark:border-primary/50 bg-muted/30">
                 <Input
                     id="slug"
                     v-model="props.form.slug"

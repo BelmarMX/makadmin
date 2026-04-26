@@ -42,7 +42,7 @@ function toggleModule(key: string, checked: boolean) {
                     :key="m.key"
                     :class="[
                         'flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors',
-                        props.form.modules.includes(m.key) ? 'border-primary/50 bg-primary/5' : 'border-border hover:border-muted-foreground/30',
+                        props.form.modules.includes(m.key) ? 'border-primary/50 bg-primary/1' : 'border-border hover:border-muted-foreground/30',
                     ]"
                 >
                     <Checkbox

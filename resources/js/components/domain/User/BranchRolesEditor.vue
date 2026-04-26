@@ -78,7 +78,7 @@ function toggleRole(branchId: number, role: string, checked: boolean): void {
                         v-for="role in roles"
                         :key="`${branch.id}-${role.value}`"
                         class="flex min-h-12 cursor-pointer items-center gap-3 rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors hover:border-primary/50"
-                        :class="{ 'border-primary bg-primary/5': hasRole(branch.id, role.value) }"
+                        :class="{ 'border-primary bg-primary/1': hasRole(branch.id, role.value) }"
                     >
                         <Checkbox
                             :model-value="hasRole(branch.id, role.value)"

@@ -66,7 +66,7 @@ function destroy() {
 
 <template>
     <!-- Modo edición -->
-    <div v-if="editing" class="space-y-3 rounded-lg border border-primary/30 bg-primary/5 p-4">
+    <div v-if="editing" class="space-y-3 rounded-lg border border-border bg-card p-4">
         <div class="space-y-2">
             <Label>Nombre <span class="text-destructive">*</span></Label>
             <Input v-model="editForm.name" placeholder="Sucursal Norte" />
@@ -110,7 +110,7 @@ function destroy() {
             </p>
         </div>
         <div class="flex gap-1">
-            <Button size="sm" variant="ghost" :title="'Editar sucursal'" @click="startEdit">
+            <Button size="sm" variant="ghost" v-tooltip.left="'Editar sucursal'" @click="startEdit">
                 <Pencil class="h-4 w-4" />
             </Button>
             <Button
@@ -119,7 +119,7 @@ function destroy() {
                 variant="ghost"
                 class="text-destructive hover:text-destructive"
                 :disabled="deleting"
-                :title="'Archivar sucursal'"
+                v-tooltip.left="'Archivar sucursal'"
                 @click="destroy"
             >
                 <Trash2 class="h-4 w-4" />

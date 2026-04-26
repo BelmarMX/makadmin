@@ -2,7 +2,7 @@
 import { Head, useForm } from '@inertiajs/vue3';
 import CropModal from '@/components/CropModal.vue';
 import { ref, computed } from 'vue';
-import { toast } from 'vue-sonner';
+import { toast } from '@/lib/toast';
 import {
     ChevronLeft,
     ChevronRight,

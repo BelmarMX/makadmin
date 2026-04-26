@@ -133,19 +133,19 @@
 
 /* Explicit .dark class — same as :root dark, ensures dark: Tailwind utilities work */
 .dark {
-    --background: hsl(222 47% 6%);
+    --background: oklch(12.9% 0.042 264.695);
     --foreground: hsl(210 40% 98%);
     --card: hsl(222 40% 10%);
     --card-foreground: hsl(210 40% 98%);
     --popover: hsl(222 40% 10%);
     --popover-foreground: hsl(210 40% 98%);
-    --primary: hsl(217 91% 60%);
+    --primary: oklch(71.5% 0.143 215.221);
     --primary-foreground: hsl(210 40% 98%);
     --secondary: hsl(222 30% 14%);
     --secondary-foreground: hsl(210 40% 98%);
     --muted: hsl(222 30% 18%);
     --muted-foreground: hsl(215 20% 65%);
-    --accent: hsl(199 89% 48%);
+    --accent: oklch(50% 0.134 242.749);
     --accent-foreground: hsl(210 40% 98%);
     --destructive: hsl(0 72% 51%);
     --destructive-foreground: hsl(210 40% 98%);
@@ -153,7 +153,7 @@
     --warning: hsl(38 92% 50%);
     --border: hsl(222 30% 18%);
     --input: hsl(222 30% 14%);
-    --ring: hsl(217 91% 60%);
+    --ring: oklch(40% 0.057 293.283);
     --sidebar-background: hsl(222 47% 4%);
     --sidebar-foreground: hsl(210 40% 98%);
     --sidebar-primary: hsl(217 91% 60%);
@@ -167,18 +167,18 @@
 
 .light {
     --background: hsl(0 0% 100%);
-    --foreground: hsl(222 47% 11%);
+    --foreground: oklch(12.9% 0.042 264.695);
     --card: hsl(0 0% 100%);
     --card-foreground: hsl(222 47% 11%);
     --popover: hsl(0 0% 100%);
     --popover-foreground: hsl(222 47% 11%);
-    --primary: hsl(217 91% 50%);
+    --primary: oklch(43.2% 0.232 292.759);
     --primary-foreground: hsl(0 0% 100%);
     --secondary: hsl(210 40% 96%);
     --secondary-foreground: hsl(222 47% 11%);
     --muted: hsl(210 40% 96%);
     --muted-foreground: hsl(215 16% 47%);
-    --accent: hsl(199 89% 42%);
+    --accent: oklch(67.3% 0.182 276.935);
     --accent-foreground: hsl(0 0% 100%);
     --destructive: hsl(0 72% 51%);
     --destructive-foreground: hsl(0 0% 100%);
@@ -186,7 +186,7 @@
     --warning: hsl(38 92% 45%);
     --border: hsl(214 32% 91%);
     --input: hsl(214 32% 91%);
-    --ring: hsl(217 91% 50%);
+    --ring: oklch(75% 0.189 293.745);
     --chart-1: hsl(217 91% 50%);
     --chart-2: hsl(199 89% 42%);
     --chart-3: hsl(142 71% 38%);
@@ -208,7 +208,77 @@
     * {
         @apply border-border outline-ring/50;
     }
+
     body {
         @apply bg-background text-foreground;
+    }
+
+    /* PrimeVue font override — 14px equivalent on 16px base, inherit font */
+    .p-component {
+        font-family: inherit;
+        font-size: 0.875rem;
+        background: transparent;
+    }
+    .p-inputtext,
+    .p-floatlabel,
+    .p-chip,
+    .p-select,
+    .p-select-label,
+    .p-password-input {
+        font-family: inherit !important;
+        font-size: 0.875rem !important;
+        background: transparent !important;
+    }
+
+    /* PrimeVue Ripple — ensure element has position context */
+    .p-ripple,
+    .p-checkbox,
+    .p-checkbox-box,
+    .p-select-label,
+    label.cursor-pointer,
+    [data-pc-name="checkbox"] {
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* FloatLabel: match PrimeVue's injected styles with data attributes */
+    .p-floatlabel,
+    [data-pc-name="floatlabel"] {
+        height: fit-content !important;
+    }
+
+    /* FloatLabel: ensure label renders at correct vertical position */
+    .p-floatlabel-on .p-floatlabel-label {
+        top: 50%;
+        transform: translateY(-50%);
+        transition:
+            top 0.15s ease,
+            transform 0.15s ease,
+            font-size 0.15s ease;
+    }
+
+    .p-floatlabel-on.p-floatlabel-focus .p-floatlabel-label,
+    .p-floatlabel-on:has(.p-inputtext:focus) .p-floatlabel-label,
+    .p-floatlabel-on:has(.p-password-input:focus) .p-floatlabel-label,
+    .p-floatlabel-on.p-filled .p-floatlabel-label {
+        top: 0.25rem;
+        transform: translateY(-50%) scale(0.85);
+        font-size: 0.75rem;
+    }
+
+    /* Cursor pointer for all interactive elements */
+    button:not([disabled]),
+    [role='button'],
+    a[href],
+    .p-checkbox,
+    .p-checkbox-box,
+    .p-select,
+    .p-password-toggle,
+    [data-state] button,
+    [type='checkbox'],
+    [type='radio'],
+    select,
+    [data-slot='tabs-trigger'] {
+        cursor: pointer;
     }
 }

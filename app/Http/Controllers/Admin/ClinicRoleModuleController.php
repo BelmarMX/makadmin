@@ -45,4 +45,17 @@ class ClinicRoleModuleController extends Controller
 
         return back()->with('success', 'Configuración de módulos actualizada.');
     }
+
+    public function restore(Request $request, Clinic $clinic, SyncClinicRoleModulesAction $action): RedirectResponse
+    {
+        abort_unless((bool) $request->user()?->is_super_admin, 403);
+
+        $defaults = config('role-module-defaults');
+
+        foreach ($defaults as $role => $modules) {
+            $action->handle($clinic, $role, $modules);
+        }
+
+        return back()->with('success', 'Configuración restaurada a valores por defecto.');
+    }
 }

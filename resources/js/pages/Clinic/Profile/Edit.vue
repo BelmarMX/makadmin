@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { clinicSlug } from '@/composables/useClinicSlug';
 import * as profileRoutes from '@/actions/App/Http/Controllers/Clinic/ProfileController';
 
 defineOptions({ layout: AppLayout });
@@ -14,7 +15,7 @@ const props = defineProps<{
     user: { name: string; email: string; phone?: string | null };
 }>();
 
-const clinic = window.location.hostname.split('.')[0];
+const clinic = clinicSlug();
 const form = useForm({
     name: props.user.name,
     phone: props.user.phone ?? '',

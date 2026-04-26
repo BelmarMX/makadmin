@@ -74,6 +74,7 @@ Versiones exactas se respetan desde `composer.lock` y `package-lock.json`. No ac
 - Índices compuestos `(clinic_id, columna_frecuente)` en consultas comunes.
 - Spatie Permission usa teams; `team_id = clinic_id`.
 - Cada módulo debe probar que la clínica A no puede ver/editar/borrar recursos de la clínica B, aunque conozca el ID.
+- Cross-clinic access: middleware `EnsureClinicAccess` después de `auth` en rutas de clínica. Verifica `$user->clinic_id === current_clinic()->id`, exime superadmins. Middleware order: `['tenant', 'auth', 'clinic-access']`.
 
 Detalles completos: `docs/ai/multitenancy.md`.
 
@@ -180,7 +181,23 @@ Sin excepciones para marcar una task como terminada.
 - Selects / dropdowns: `Select` + `FloatLabel` (uno por filtro, no `<select>` nativo).
 - Badges / etiquetas de roles y estado: `Chip` de PrimeVue con icono si aplica.
 - Checkboxes: `Checkbox` de PrimeVue en modo `binary`.
-- Botones con efecto de clic: agregar directiva `v-ripple` a acciones importantes (guardar, activar, desactivar, eliminar).
+- Botones con efecto de clic: agregar directiva `v-ripple` a acciones importantes (guardar, activar, desactivar, eliminar) mediante `app.directive('ripple', Ripple)`. NO usar `ripple: true` en global config de PrimeVue (rompe FloatLabel+Select).
+- Tooltips en botones icon-only: usar `v-tooltip` (registrado globalmente via `app.directive('tooltip', Tooltip)`). Usar modificadores de posición para evitar overflow: `v-tooltip.bottom` en toolbar/header, `v-tooltip.left` en botones del lado derecho. NO usar `title` nativo en botones icon-only.
+- Toast: usar PrimeVue Toast (`ToastService` plugin + `<Toast position="top-right" />` en layouts). Helper en `@/lib/toast.ts` con API `toast.success()`, `toast.error()`, `toast.info()`, `toast.warning()`. NO usar vue-sonner.
+- Font-size: app usa `html { font-size: 16px }`. PrimeVue componentes se escalan con `.p-component { font-size: 0.875rem }` para equivaler a 14px. No cambiar el html font-size.
+- FloatLabel "Todos" options: NO usar `{ id: null, name: 'Todos' }`. Usar sentinelas truthy: `{ id: 0, name: 'Todos' }` para números, `{ value: '__all__', label: 'Todos' }` para strings. Así FloatLabel detecta el estado "filled" y flota la etiqueta.
+- FloatLabel CSS: usar `[data-pc-name="floatlabel"] { height: fit-content !important }` para override de estilos inyectados por PrimeVue en runtime.
+- PermissionGrid: NO poner `@click` handlers en el `<td>` del checkbox (causa doble-toggle). `toggleModule` en la primera `<td>` (nombre del módulo), no en el `<tr>`. Sincronizar `form.data.branch_id` y `form.data.permissions` via `watch` sobre `props.branchId` y `props.permissions`.
+- Status badges: `UserStatusBadge` usa `bg-success text-white` para activo, `variant="destructive"` para inactivo.
+- SSR-safe: usar `composables/useClinicSlug.ts` con guard `typeof window` en lugar de `window.location.hostname` directo.
+- Dashboard / listados por defecto: agregar iconos a tabs con lucide, iconos a datos generales (Mail, Phone, Building2, etc.).
+- Wayfinder routes: regeneradas automáticamente por `@laravel/vite-plugin-wayfinder` en cada build. NO committed (.gitignore). Si cambia `APP_APEX_DOMAIN`, reiniciar dev o rebuild.
 - Shadcn Button / Card / Avatar / Badge se mantienen para estructura de layout.
 - No mezclar `<select>` nativo con PrimeVue en la misma vista.
 - UI siempre en español latinoamericano. Nunca mostrar claves internas (ej. `clinic_admin`, `veterinarian`) directamente al usuario; usar `roleLabel()` de `@/lib/userLabels`.
+
+## Configuración por defecto (Roles & Módulos)
+
+- `config/role-module-defaults.php` define qué módulos están activos por defecto para cada rol.
+- Se usa al crear una clínica nueva y al restaurar defaults via `ClinicRoleModuleController::restore()`.
+- Ruta: `POST /clinics/{clinic}/role-modules/restore` (alias `clinic-access`).
