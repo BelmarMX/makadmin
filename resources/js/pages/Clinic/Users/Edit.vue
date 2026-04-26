@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ArrowLeft, Save } from 'lucide-vue-next';
+import FloatLabel from 'primevue/floatlabel';
+import InputText from 'primevue/inputtext';
+import Password from 'primevue/password';
 import { ref } from 'vue';
 import CropModal from '@/components/CropModal.vue';
 import ImageUploadCircle from '@/components/ImageUploadCircle.vue';
 import BranchRolesEditor from '@/components/domain/User/BranchRolesEditor.vue';
-import InputError from '@/components/InputError.vue';
 import UserStatusBadge from '@/components/domain/User/UserStatusBadge.vue';
+import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as userRoutes from '@/actions/App/Http/Controllers/Clinic/UserController';
 
@@ -123,7 +124,7 @@ function submit() {
                         Volver
                     </Link>
                 </Button>
-                <Button :disabled="form.processing">
+                <Button :disabled="form.processing" v-ripple>
                     <Save class="h-4 w-4" />
                     Guardar
                 </Button>
@@ -148,44 +149,64 @@ function submit() {
                     @update:open="cropOpen = $event"
                 />
             </div>
-            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            <div class="grid gap-2">
-                <Label for="name">Nombre</Label>
-                <Input id="name" v-model="form.name" autocomplete="name" />
-                <InputError :message="form.errors.name" />
-            </div>
-            <div class="grid gap-2">
-                <Label for="email">Email</Label>
-                <Input id="email" v-model="form.email" type="email" autocomplete="email" />
-                <InputError :message="form.errors.email" />
-            </div>
-            <div class="grid gap-2">
-                <Label for="phone">Teléfono</Label>
-                <Input id="phone" v-model="form.phone" />
-                <InputError :message="form.errors.phone" />
-            </div>
-            <div class="grid gap-2">
-                <Label for="branch">Sucursal</Label>
-                <select id="branch" v-model="form.branch_id" class="h-9 rounded-md border border-input bg-background px-3 text-sm">
-                    <option value="">Selecciona sucursal</option>
-                    <option v-for="branch in branches" :key="branch.id" :value="branch.id">{{ branch.name }}</option>
-                </select>
-                <InputError :message="form.errors.branch_id" />
-            </div>
-            <div class="grid gap-2">
-                <Label for="license">Cédula profesional</Label>
-                <Input id="license" v-model="form.professional_license" />
-                <InputError :message="form.errors.professional_license" />
-            </div>
-            <div class="grid gap-2">
-                <Label for="password">Nueva contraseña</Label>
-                <Input id="password" v-model="form.password" type="password" autocomplete="new-password" />
-                <InputError :message="form.errors.password" />
-            </div>
-            <div class="grid gap-2">
-                <Label for="password_confirmation">Confirmar contraseña</Label>
-                <Input id="password_confirmation" v-model="form.password_confirmation" type="password" autocomplete="new-password" />
-            </div>
+            <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                <div class="grid gap-1">
+                    <FloatLabel variant="on">
+                        <InputText id="name" v-model="form.name" autocomplete="name" class="w-full" />
+                        <label for="name">Nombre</label>
+                    </FloatLabel>
+                    <InputError :message="form.errors.name" />
+                </div>
+                <div class="grid gap-1">
+                    <FloatLabel variant="on">
+                        <InputText id="email" v-model="form.email" type="email" autocomplete="email" class="w-full" />
+                        <label for="email">Email</label>
+                    </FloatLabel>
+                    <InputError :message="form.errors.email" />
+                </div>
+                <div class="grid gap-1">
+                    <FloatLabel variant="on">
+                        <InputText id="phone" v-model="form.phone" class="w-full" />
+                        <label for="phone">Teléfono</label>
+                    </FloatLabel>
+                    <InputError :message="form.errors.phone" />
+                </div>
+                <div class="grid gap-1">
+                    <FloatLabel variant="on">
+                        <InputText id="license" v-model="form.professional_license" class="w-full" />
+                        <label for="license">Cédula profesional</label>
+                    </FloatLabel>
+                    <InputError :message="form.errors.professional_license" />
+                </div>
+                <div class="grid gap-1">
+                    <FloatLabel variant="on">
+                        <Password
+                            id="password"
+                            v-model="form.password"
+                            autocomplete="new-password"
+                            :feedback="false"
+                            toggle-mask
+                            class="w-full"
+                            input-class="w-full"
+                        />
+                        <label for="password">Nueva contraseña</label>
+                    </FloatLabel>
+                    <InputError :message="form.errors.password" />
+                </div>
+                <div class="grid gap-1">
+                    <FloatLabel variant="on">
+                        <Password
+                            id="password_confirmation"
+                            v-model="form.password_confirmation"
+                            autocomplete="new-password"
+                            :feedback="false"
+                            toggle-mask
+                            class="w-full"
+                            input-class="w-full"
+                        />
+                        <label for="password_confirmation">Confirmar contraseña</label>
+                    </FloatLabel>
+                </div>
             </div>
         </div>
 

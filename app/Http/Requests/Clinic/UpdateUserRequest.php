@@ -26,7 +26,7 @@ class UpdateUserRequest extends FormRequest
             'email' => ['required', 'email', 'max:200', Rule::unique('users', 'email')->ignore($user?->id)],
             'phone' => ['nullable', 'string', 'max:20'],
             'branch_id' => [
-                'required',
+                'nullable',
                 Rule::exists('clinic_branches', 'id')->where('clinic_id', current_clinic()->id),
             ],
             'professional_license' => ['nullable', 'string', 'max:50'],
