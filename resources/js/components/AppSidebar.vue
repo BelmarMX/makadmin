@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { LayoutGrid, LayoutDashboard, Building2, Sun, Moon, Monitor, Users } from 'lucide-vue-next';
+import { Building2, LayoutDashboard, LayoutGrid, Monitor, Moon, Sun, Users } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -15,11 +15,11 @@ import {
     SidebarMenuItem,
     SidebarSeparator,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
 import * as adminDashboard from '@/actions/App/Http/Controllers/Admin/AdminDashboardController';
 import * as clinicRoutes from '@/actions/App/Http/Controllers/Admin/ClinicController';
 import * as clinicUserRoutes from '@/actions/App/Http/Controllers/Clinic/UserController';
 import { useAppearance } from '@/composables/useAppearance';
+import { dashboard } from '@/routes';
 import type { NavItem, SharedPageProps } from '@/types';
 
 const page = usePage<SharedPageProps>();
@@ -27,29 +27,49 @@ const { appearance, updateAppearance } = useAppearance();
 const clinic = window.location.hostname.split('.')[0];
 
 const context = computed(() => page.props.context ?? 'app');
+const authUser = computed(() => page.props.auth?.user);
+const permissions = computed((): string[] => page.props.auth?.permissions ?? []);
+const isSuperAdmin = computed(() => authUser.value?.is_super_admin === true);
 
-const logoHref = computed(() =>
-    context.value === 'admin' ? adminDashboard.index().url : dashboard(),
-);
+const logoHref = computed(() => (context.value === 'admin' ? adminDashboard.index().url : dashboard()));
 
-const navItems = computed<NavItem[]>(() => {
+function canSee(permission?: string): boolean {
+    if (!permission) {
+        return true;
+    }
+
+    if (isSuperAdmin.value) {
+        return true;
+    }
+
+    if (context.value !== 'clinic') {
+        return true;
+    }
+
+    return permissions.value.includes(permission);
+}
+
+type NavItemWithPermission = NavItem & { permission?: string };
+
+const navItems = computed<NavItemWithPermission[]>(() => {
     if (context.value === 'admin') {
         return [
             { title: 'Panel de administración', href: adminDashboard.index().url, icon: LayoutDashboard },
             { title: 'Clínicas', href: clinicRoutes.index().url, icon: Building2 },
         ];
     }
+
     if (context.value === 'clinic') {
         return [
             { title: 'Dashboard', href: dashboard(), icon: LayoutGrid },
-            { title: 'Usuarios', href: clinicUserRoutes.index(clinic).url, icon: Users },
+            { title: 'Usuarios', href: clinicUserRoutes.index(clinic).url, icon: Users, permission: 'users.view' },
         ];
     }
 
-    return [
-        { title: 'Dashboard', href: dashboard(), icon: LayoutGrid },
-    ];
+    return [{ title: 'Dashboard', href: dashboard(), icon: LayoutGrid }];
 });
+
+const visibleNavItems = computed(() => navItems.value.filter((item) => canSee(item.permission)));
 </script>
 
 <template>
@@ -67,11 +87,10 @@ const navItems = computed<NavItem[]>(() => {
         </SidebarHeader>
 
         <SidebarContent>
-            <NavMain :items="navItems" />
+            <NavMain :items="visibleNavItems" />
         </SidebarContent>
 
         <SidebarFooter>
-            <!-- Toggle de apariencia inline -->
             <SidebarMenu>
                 <SidebarMenuItem>
                     <div class="flex items-center justify-between gap-1 px-2 py-1">

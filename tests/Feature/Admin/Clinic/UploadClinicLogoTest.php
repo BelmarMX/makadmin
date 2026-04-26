@@ -3,6 +3,7 @@
 use App\Contracts\Integrations\MediaStorage;
 use App\Domain\Clinic\Actions\UploadClinicLogoAction;
 use App\Domain\Clinic\Models\Clinic;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Mockery\MockInterface;
@@ -68,7 +69,7 @@ test('logo path contains uuid for cache busting', function () {
 });
 
 test('super admin can upload logo via HTTP', function () {
-    $admin = \App\Models\User::factory()->create(['is_super_admin' => true]);
+    $admin = User::factory()->create(['is_super_admin' => true]);
     $clinic = Clinic::factory()->create(['logo_path' => null]);
     $file = UploadedFile::fake()->image('logo.jpg', 300, 300);
 
@@ -84,7 +85,7 @@ test('super admin can upload logo via HTTP', function () {
 });
 
 test('upload rejects non-image file', function () {
-    $admin = \App\Models\User::factory()->create(['is_super_admin' => true]);
+    $admin = User::factory()->create(['is_super_admin' => true]);
     $clinic = Clinic::factory()->create();
     $file = UploadedFile::fake()->create('document.pdf', 100, 'application/pdf');
 
@@ -94,7 +95,7 @@ test('upload rejects non-image file', function () {
 });
 
 test('upload rejects file over 5MB', function () {
-    $admin = \App\Models\User::factory()->create(['is_super_admin' => true]);
+    $admin = User::factory()->create(['is_super_admin' => true]);
     $clinic = Clinic::factory()->create();
     $file = UploadedFile::fake()->create('big.jpg', 6000, 'image/jpeg');
 
@@ -105,7 +106,7 @@ test('upload rejects file over 5MB', function () {
 
 test('super admin can remove clinic logo', function () {
     $clinic = Clinic::factory()->create(['logo_path' => 'logos/clinics/1/logo_old.webp']);
-    $admin = \App\Models\User::factory()->create(['is_super_admin' => true]);
+    $admin = User::factory()->create(['is_super_admin' => true]);
 
     $this->mock(MediaStorage::class, function (MockInterface $mock) {
         $mock->shouldReceive('delete')->once()->with('logos/clinics/1/logo_old.webp')->andReturn(true);

@@ -21,7 +21,7 @@ class UploadClinicLogoAction
 
         $path = "logos/clinics/{$clinic->id}/logo_".Str::uuid().'.webp';
 
-        $manager = new ImageManager(new Driver());
+        $manager = new ImageManager(new Driver);
         $webp = (string) $manager->read($file->getRealPath())->cover(400, 400)->toWebp(80);
 
         $this->media->putRaw($path, $webp);

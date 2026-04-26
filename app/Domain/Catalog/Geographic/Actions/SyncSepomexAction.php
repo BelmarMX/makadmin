@@ -101,7 +101,7 @@ class SyncSepomexAction
     }
 
     /**
-     * @param array<int, string> $cols
+     * @param  array<int, string>  $cols
      * @return array<string, mixed>|null
      */
     private function parseLine(array $cols): ?array

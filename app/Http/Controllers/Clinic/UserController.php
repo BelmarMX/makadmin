@@ -56,7 +56,10 @@ class UserController extends Controller
         ]);
 
         $userBranchPermissions = $loaded->userBranchPermissions
-            ->map(fn ($permission) => ['branch_id' => $permission->branch_id, 'permission' => $permission->permission])
+            ->map(fn ($permission): array => [
+                'branch_id' => (int) $permission->getAttribute('branch_id'),
+                'permission' => (string) $permission->getAttribute('permission'),
+            ])
             ->values()
             ->all();
 

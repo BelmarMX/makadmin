@@ -30,10 +30,9 @@ class ListUsersAction
             ->orderByRaw(
                 "CASE WHEN id IN (
                     SELECT ubr.user_id FROM user_branch_roles ubr
-                    INNER JOIN roles r ON r.name = ubr.role AND r.team_id = ?
                     WHERE ubr.clinic_id = ? AND ubr.role = 'clinic_admin' AND ubr.deleted_at IS NULL
                 ) THEN 0 ELSE 1 END",
-                [$clinicId, $clinicId]
+                [$clinicId]
             )
             ->orderBy('name')
             ->paginate(15)

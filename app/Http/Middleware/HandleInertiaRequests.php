@@ -35,6 +35,8 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -46,7 +48,10 @@ class HandleInertiaRequests extends Middleware
                 'scheme' => config('branding.scheme'),
             ],
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
+                'permissions' => $user
+                    ? $user->getAllPermissions()->pluck('name')->values()->all()
+                    : [],
             ],
             'context' => $this->resolveContext($request),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
