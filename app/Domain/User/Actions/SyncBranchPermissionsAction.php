@@ -29,17 +29,26 @@ class SyncBranchPermissionsAction
                 ->values()
                 ->all();
 
+            $desiredPermissions = collect($permissions);
+
             UserBranchPermission::where('user_id', $user->id)
                 ->where('branch_id', $branchId)
+                ->get()
+                ->reject(fn (UserBranchPermission $permission): bool => $desiredPermissions->contains($permission->permission))
+                ->each
                 ->delete();
 
             foreach ($permissions as $permission) {
-                UserBranchPermission::create([
+                $branchPermission = UserBranchPermission::withTrashed()->updateOrCreate([
                     'clinic_id' => $user->clinic_id,
                     'user_id' => $user->id,
                     'branch_id' => $branchId,
                     'permission' => $permission,
                 ]);
+
+                if ($branchPermission->trashed()) {
+                    $branchPermission->restore();
+                }
             }
 
             PermissionsChanged::dispatch($user, auth()->user());
