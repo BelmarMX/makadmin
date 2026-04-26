@@ -94,8 +94,13 @@ class UserController extends Controller
             'roles' => UserRole::options(),
             'modules' => current_clinic()->modules()->where('is_active', true)->orderBy('module_key')->get(['module_key'])->map(function ($module): array {
                 $moduleKey = (string) $module->getAttribute('module_key');
+                $moduleEnum = ModuleKey::tryFrom($moduleKey);
 
-                return ['module_key' => $moduleKey, 'label' => ModuleKey::tryFrom($moduleKey)?->label() ?? $moduleKey];
+                return [
+                    'module_key' => $moduleKey,
+                    'label' => $moduleEnum?->label() ?? $moduleKey,
+                    'description' => $moduleEnum?->description() ?? '',
+                ];
             }),
         ];
     }

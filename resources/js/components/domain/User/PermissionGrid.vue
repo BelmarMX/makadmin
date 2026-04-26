@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
+import { Eye, Pencil, Plus, Save, Trash2 } from 'lucide-vue-next';
 import Checkbox from 'primevue/checkbox';
-import { CheckSquare, Eye, Pencil, Plus, Save, Trash2 } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 
 const props = defineProps<{
     action: string;
-    modules: Array<{ module_key: string; label: string }>;
+    modules: Array<{ module_key: string; label: string; description?: string }>;
     permissions?: Array<{ name: string }>;
+    branchId?: number | null;
 }>();
 
 const actions = [
@@ -26,7 +27,7 @@ for (const module of props.modules) {
         .map((action) => action.key);
 }
 
-const form = useForm({ permissions });
+const form = useForm({ permissions, branch_id: props.branchId ?? null });
 
 function hasPermission(module: string, action: string): boolean {
     return form.permissions[module]?.includes(action) ?? false;
@@ -44,44 +45,38 @@ function submit() {
 
 <template>
     <form class="space-y-4" @submit.prevent="submit">
-        <div class="grid gap-3">
-            <article
-                v-for="module in modules"
-                :key="module.module_key"
-                class="rounded-lg border border-border bg-card p-4"
-            >
-                <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <div class="flex min-w-0 items-center gap-3">
-                        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
-                            <CheckSquare class="h-4 w-4" />
-                        </span>
-                        <div class="min-w-0">
-                            <h3 class="truncate text-sm font-semibold text-foreground">{{ module.label }}</h3>
-                            <p class="truncate text-xs text-muted-foreground">{{ module.module_key }}</p>
-                        </div>
-                    </div>
-
-                    <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                        <label
-                            v-for="action in actions"
-                            :key="action.key"
-                            class="flex min-h-10 cursor-pointer items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors hover:border-primary/50"
-                            :class="{ 'border-primary bg-primary/5': hasPermission(module.module_key, action.key) }"
-                        >
+        <div class="overflow-x-auto rounded-lg border border-border">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-border bg-muted/50">
+                        <th class="px-4 py-3 text-left font-semibold text-foreground">Permiso</th>
+                        <th v-for="action in actions" :key="action.key" class="w-24 px-2 py-3 text-center font-semibold text-foreground">
+                            <div class="flex flex-col items-center gap-1">
+                                <component :is="action.icon" class="h-4 w-4" />
+                                <span class="text-xs">{{ action.label }}</span>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border">
+                    <tr v-for="module in modules" :key="module.module_key" class="transition-colors hover:bg-muted/30">
+                        <td class="px-4 py-3">
+                            <p class="font-medium text-foreground">{{ module.label }}</p>
+                            <p v-if="module.description" class="mt-0.5 text-xs text-muted-foreground">{{ module.description }}</p>
+                        </td>
+                        <td v-for="action in actions" :key="action.key" class="px-2 py-3 text-center">
                             <Checkbox
                                 :model-value="hasPermission(module.module_key, action.key)"
                                 binary
                                 @update:model-value="togglePermission(module.module_key, action.key, Boolean($event))"
                             />
-                            <component :is="action.icon" class="h-4 w-4 shrink-0 text-muted-foreground" />
-                            <span class="font-medium text-foreground">{{ action.label }}</span>
-                        </label>
-                    </div>
-                </div>
-            </article>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
-        <Button :disabled="form.processing">
+        <Button :disabled="form.processing" v-ripple>
             <Save class="h-4 w-4" />
             Guardar permisos
         </Button>
