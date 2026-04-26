@@ -81,7 +81,13 @@ class ClinicController extends Controller
     {
         $this->authorize('view', $clinic);
 
-        $clinic->load(['branches', 'modules', 'users']);
+        $clinic->load([
+            'branches',
+            'modules',
+            'users' => fn ($query) => $query
+                ->with('roles:id,name')
+                ->select(['id', 'clinic_id', 'name', 'email', 'phone', 'is_active', 'email_verified_at']),
+        ]);
         $roleModuleConfig = ClinicRoleModule::where('clinic_id', $clinic->id)
             ->get(['role', 'module_key', 'is_enabled'])
             ->toArray();

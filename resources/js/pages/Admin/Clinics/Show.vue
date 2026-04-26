@@ -7,30 +7,37 @@ import {
     ConciergeBell,
     ExternalLink,
     ImageIcon,
+    Pencil,
     Plus,
+    Power,
+    RotateCcw,
     Save,
     Scissors,
     ShieldCheck,
     Stethoscope,
+    Trash2,
     UserPlus,
 } from 'lucide-vue-next';
 import Checkbox from 'primevue/checkbox';
-import { computed, onMounted, ref } from 'vue';
+import Chip from 'primevue/chip';
+import { computed, onMounted, ref, watch } from 'vue';
 import type { Component } from 'vue';
-import AdminLayout from '@/layouts/AdminLayout.vue';
 import ClinicStatusBadge from '@/components/domain/Clinic/ClinicStatusBadge.vue';
-import ModuleToggleCard from '@/components/domain/Clinic/ModuleToggleCard.vue';
 import BranchListItem from '@/components/domain/Clinic/BranchListItem.vue';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import ModuleToggleCard from '@/components/domain/Clinic/ModuleToggleCard.vue';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import * as clinicRoutes from '@/actions/App/Http/Controllers/Admin/ClinicController';
-import * as branchRoutes from '@/actions/App/Http/Controllers/Admin/ClinicBranchController';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import * as adminRoutes from '@/actions/App/Http/Controllers/Admin/ClinicAdminController';
+import * as branchRoutes from '@/actions/App/Http/Controllers/Admin/ClinicBranchController';
+import * as clinicRoutes from '@/actions/App/Http/Controllers/Admin/ClinicController';
+import * as clinicUserRoutes from '@/actions/App/Http/Controllers/Admin/ClinicUserController';
 import * as roleModuleRoutes from '@/actions/App/Http/Controllers/Admin/ClinicRoleModuleController';
+import AdminLayout from '@/layouts/AdminLayout.vue';
+import { roleLabel } from '@/lib/userLabels';
 
 defineOptions({ layout: AdminLayout });
 
@@ -52,7 +59,15 @@ const props = defineProps<{
         deleted_at?: string | null;
         subdomain_url: string;
         branches: Array<{ id: number; name: string; address: string; phone?: string | null; is_main: boolean; is_active: boolean }>;
-        users: Array<{ id: number; name: string; email: string; email_verified_at: string | null }>;
+        users: Array<{
+            id: number;
+            name: string;
+            email: string;
+            phone?: string | null;
+            is_active: boolean;
+            email_verified_at: string | null;
+            roles?: Array<{ name: string }>;
+        }>;
         roleModuleConfig: Array<{ role: string; module_key: string; is_enabled: boolean }>;
     };
     modules: Array<{ key: string; label: string; description: string; icon: string; dependsOn: string[]; active: boolean }>;
@@ -75,44 +90,104 @@ const availableRoles = [
 ];
 
 const roleModuleState = ref<Record<string, Record<string, boolean>>>({});
+const editingUserId = ref<number | null>(null);
 
-// Branch creation form
+type EditForm = { name: string; email: string; phone: string };
+const editForms = ref<Record<number, EditForm>>({});
+
 const showBranchForm = ref(false);
 const branchForm = useForm({ name: '', address: '', phone: '' });
 
+const showInviteForm = ref(false);
+const inviteForm = useForm({ name: '', email: '', phone: '' });
+
+watch(editingUserId, (id) => {
+    if (id !== null) {
+        const user = props.clinic.users.find((clinicUser) => clinicUser.id === id);
+
+        if (user) {
+            editForms.value[id] = {
+                name: user.name,
+                email: user.email,
+                phone: user.phone ?? '',
+            };
+        }
+    }
+});
+
 function storeBranch() {
     branchForm.post(branchRoutes.store({ clinic: props.clinic.id }).url, {
-        onSuccess: () => { showBranchForm.value = false; branchForm.reset(); },
+        onSuccess: () => {
+            showBranchForm.value = false;
+            branchForm.reset();
+        },
         preserveScroll: true,
     });
 }
 
-// Activate / deactivate clinic
 function toggleActive() {
     const url = props.clinic.is_active
         ? clinicRoutes.deactivate({ clinic: props.clinic.id }).url
         : clinicRoutes.activate({ clinic: props.clinic.id }).url;
+
     router.post(url, {}, { preserveScroll: true });
 }
-
-// Invite new clinic user
-const showInviteForm = ref(false);
-const inviteForm = useForm({ name: '', email: '', phone: '' });
 
 function inviteUser() {
     inviteForm.post(adminRoutes.invite({ clinic: props.clinic.id }).url, {
         preserveScroll: true,
-        onSuccess: () => { showInviteForm.value = false; inviteForm.reset(); },
+        onSuccess: () => {
+            showInviteForm.value = false;
+            inviteForm.reset();
+        },
     });
 }
 
-// Verify user email
 function verifyEmail(userId: number) {
     router.post(
         adminRoutes.verifyEmail({ clinic: props.clinic.id, user: userId }).url,
         {},
         { preserveScroll: true },
     );
+}
+
+function saveUser(userId: number) {
+    router.put(
+        clinicUserRoutes.update({ clinic: props.clinic.id, user: userId }).url,
+        editForms.value[userId],
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                editingUserId.value = null;
+            },
+        },
+    );
+}
+
+function suspendUser(userId: number) {
+    router.post(
+        clinicUserRoutes.deactivate({ clinic: props.clinic.id, user: userId }).url,
+        {},
+        { preserveScroll: true },
+    );
+}
+
+function activateUser(userId: number) {
+    router.post(
+        clinicUserRoutes.activate({ clinic: props.clinic.id, user: userId }).url,
+        {},
+        { preserveScroll: true },
+    );
+}
+
+function deleteUser(userId: number, name: string) {
+    if (!confirm(`¿Eliminar a ${name}? Esta acción no se puede deshacer.`)) {
+        return;
+    }
+
+    router.delete(clinicUserRoutes.destroy({ clinic: props.clinic.id, user: userId }).url, {
+        preserveScroll: true,
+    });
 }
 
 function initRoleModuleState() {
@@ -162,7 +237,6 @@ function saveRoleModules() {
     <Head :title="props.clinic.commercial_name" />
 
     <div class="space-y-6">
-        <!-- Header -->
         <div class="flex items-start justify-between gap-4">
             <div class="flex items-start gap-4">
                 <img
@@ -192,16 +266,12 @@ function saveRoleModules() {
                 <Button variant="outline" as-child>
                     <Link :href="clinicRoutes.edit({ clinic: props.clinic.id }).url">Editar</Link>
                 </Button>
-                <Button
-                    :variant="props.clinic.is_active ? 'destructive' : 'default'"
-                    @click="toggleActive"
-                >
+                <Button :variant="props.clinic.is_active ? 'destructive' : 'default'" @click="toggleActive">
                     {{ props.clinic.is_active ? 'Desactivar' : 'Activar' }}
                 </Button>
             </div>
         </div>
 
-        <!-- Tabs -->
         <Tabs default-value="general">
             <TabsList class="grid w-full grid-cols-5">
                 <TabsTrigger value="general">General</TabsTrigger>
@@ -211,7 +281,6 @@ function saveRoleModules() {
                 <TabsTrigger value="role-modules">Roles y módulos</TabsTrigger>
             </TabsList>
 
-            <!-- General -->
             <TabsContent value="general">
                 <Card>
                     <CardContent class="grid grid-cols-2 gap-4 pt-6 text-sm">
@@ -224,7 +293,6 @@ function saveRoleModules() {
                 </Card>
             </TabsContent>
 
-            <!-- Branches -->
             <TabsContent value="branches">
                 <Card>
                     <CardHeader>
@@ -271,19 +339,17 @@ function saveRoleModules() {
                 </Card>
             </TabsContent>
 
-            <!-- Modules -->
             <TabsContent value="modules">
                 <div class="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-4">
                     <ModuleToggleCard
-                        v-for="m in props.modules"
-                        :key="m.key"
+                        v-for="module in props.modules"
+                        :key="module.key"
                         :clinic-id="props.clinic.id"
-                        :module="m"
+                        :module="module"
                     />
                 </div>
             </TabsContent>
 
-            <!-- Users -->
             <TabsContent value="users">
                 <Card>
                     <CardHeader>
@@ -296,7 +362,6 @@ function saveRoleModules() {
                         </div>
                     </CardHeader>
                     <CardContent class="space-y-4">
-                        <!-- Formulario de invitación -->
                         <div v-if="showInviteForm" class="space-y-3 rounded-lg border border-primary/30 bg-primary/5 p-4">
                             <p class="text-sm font-medium text-foreground">Nuevo usuario</p>
                             <div class="grid grid-cols-2 gap-3">
@@ -316,7 +381,7 @@ function saveRoleModules() {
                                 <Input v-model="inviteForm.phone" type="tel" placeholder="+52 55 1234 5678" />
                             </div>
                             <div class="flex gap-2">
-                                <Button size="sm" :disabled="inviteForm.processing" @click="inviteUser">
+                                <Button size="sm" :disabled="inviteForm.processing" @click="inviteUser" v-ripple>
                                     <UserPlus class="h-3.5 w-3.5" />
                                     Enviar invitación
                                 </Button>
@@ -324,43 +389,106 @@ function saveRoleModules() {
                             </div>
                         </div>
 
-                        <!-- Lista de usuarios -->
                         <div v-if="props.clinic.users.length === 0 && !showInviteForm" class="py-8 text-center text-muted-foreground">
                             Sin usuarios registrados en esta clínica.
                         </div>
                         <div v-else class="divide-y divide-border">
-                            <div v-for="user in props.clinic.users" :key="user.id" class="flex items-center justify-between py-3">
-                                <div>
-                                    <p class="font-medium text-foreground">{{ user.name }}</p>
-                                    <p class="text-sm text-muted-foreground">{{ user.email }}</p>
+                            <div v-for="user in props.clinic.users" :key="user.id" class="py-3">
+                                <div v-if="editingUserId !== user.id" class="flex items-center justify-between gap-3">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="font-medium text-foreground">{{ user.name }}</p>
+                                        <p class="text-sm text-muted-foreground">{{ user.email }}</p>
+                                        <div class="mt-1 flex flex-wrap gap-1">
+                                            <Chip v-for="role in user.roles ?? []" :key="role.name" class="!px-2 !py-0.5 !text-xs">
+                                                <template #default>
+                                                    <component :is="roleIcons[role.name] ?? BadgeCheck" class="h-3 w-3 shrink-0" />
+                                                    <span class="ml-1 text-xs">{{ roleLabel(role.name) }}</span>
+                                                </template>
+                                            </Chip>
+                                        </div>
+                                    </div>
+                                    <div class="flex shrink-0 items-center gap-2">
+                                        <Badge v-if="user.email_verified_at" variant="outline" class="gap-1 text-xs text-success">
+                                            <ShieldCheck class="h-3 w-3" />
+                                            Verificado
+                                        </Badge>
+                                        <Badge v-else variant="outline" class="gap-1 text-xs text-warning">
+                                            <AlertCircle class="h-3 w-3" />
+                                            Sin verificar
+                                        </Badge>
+                                        <Badge :variant="user.is_active ? 'default' : 'secondary'" class="text-xs">
+                                            {{ user.is_active ? 'Activo' : 'Suspendido' }}
+                                        </Badge>
+                                        <Button size="sm" variant="ghost" @click="editingUserId = user.id" title="Editar">
+                                            <Pencil class="h-3.5 w-3.5" />
+                                        </Button>
+                                        <Button
+                                            v-if="isSuperAdmin && !user.email_verified_at"
+                                            size="sm"
+                                            variant="outline"
+                                            class="text-xs"
+                                            @click="verifyEmail(user.id)"
+                                            v-ripple
+                                        >
+                                            <ShieldCheck class="h-3.5 w-3.5" />
+                                            Verificar
+                                        </Button>
+                                        <Button
+                                            v-if="user.is_active"
+                                            size="sm"
+                                            variant="outline"
+                                            class="text-xs text-warning"
+                                            @click="suspendUser(user.id)"
+                                            v-ripple
+                                        >
+                                            <Power class="h-3.5 w-3.5" />
+                                            Suspender
+                                        </Button>
+                                        <Button
+                                            v-else
+                                            size="sm"
+                                            variant="outline"
+                                            class="text-xs text-success"
+                                            @click="activateUser(user.id)"
+                                            v-ripple
+                                        >
+                                            <RotateCcw class="h-3.5 w-3.5" />
+                                            Activar
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            class="text-destructive hover:text-destructive"
+                                            @click="deleteUser(user.id, user.name)"
+                                            v-ripple
+                                        >
+                                            <Trash2 class="h-3.5 w-3.5" />
+                                        </Button>
+                                    </div>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <Badge
-                                        v-if="user.email_verified_at"
-                                        variant="outline"
-                                        class="gap-1 text-xs text-success"
-                                    >
-                                        <ShieldCheck class="h-3 w-3" />
-                                        Verificado
-                                    </Badge>
-                                    <Badge
-                                        v-else
-                                        variant="outline"
-                                        class="gap-1 text-xs text-warning"
-                                    >
-                                        <AlertCircle class="h-3 w-3" />
-                                        Sin verificar
-                                    </Badge>
-                                    <Button
-                                        v-if="isSuperAdmin && !user.email_verified_at"
-                                        size="sm"
-                                        variant="outline"
-                                        class="text-xs"
-                                        @click="verifyEmail(user.id)"
-                                    >
-                                        <ShieldCheck class="h-3.5 w-3.5" />
-                                        Verificar email
-                                    </Button>
+
+                                <div v-else class="space-y-3 rounded-lg border border-primary/30 bg-primary/5 p-3">
+                                    <div class="grid grid-cols-3 gap-3">
+                                        <div>
+                                            <Label class="text-xs">Nombre</Label>
+                                            <Input v-model="editForms[user.id].name" class="mt-1 h-8 text-sm" />
+                                        </div>
+                                        <div>
+                                            <Label class="text-xs">Email</Label>
+                                            <Input v-model="editForms[user.id].email" type="email" class="mt-1 h-8 text-sm" />
+                                        </div>
+                                        <div>
+                                            <Label class="text-xs">Teléfono</Label>
+                                            <Input v-model="editForms[user.id].phone" class="mt-1 h-8 text-sm" />
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <Button size="sm" @click="saveUser(user.id)" v-ripple>
+                                            <Save class="h-3.5 w-3.5" />
+                                            Guardar
+                                        </Button>
+                                        <Button size="sm" variant="ghost" @click="editingUserId = null">Cancelar</Button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
