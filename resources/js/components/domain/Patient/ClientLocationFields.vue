@@ -1,11 +1,21 @@
 <script setup lang="ts">
-import { MapPinned } from 'lucide-vue-next';
-import { computed, ref, watch } from 'vue';
+import { MapPinned, Plus, Save } from 'lucide-vue-next';
+import { computed, nextTick, ref, watch } from 'vue';
 import FloatLabel from 'primevue/floatlabel';
-import CascadeSelect from 'primevue/cascadeselect';
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
 import InputText from 'primevue/inputtext';
+import Select from 'primevue/select';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import * as catalogRoutes from '@/routes/api/catalog';
 import * as patientCatalogRoutes from '@/actions/App/Http/Controllers/Clinic/Api/PatientCatalogController';
 import { clinicSlug } from '@/composables/useClinicSlug';
@@ -21,7 +31,6 @@ type PostalCodeResult = {
 };
 
 type SimpleOption = { id: number | string; name: string };
-type CascadeGroup = { name: string; items: SimpleOption[] };
 
 const props = defineProps<{
     postalCode?: string | null;
@@ -43,50 +52,54 @@ const loading = ref(false);
 const results = ref<PostalCodeResult[]>([]);
 const selectedState = ref<SimpleOption | null>(null);
 const selectedCity = ref<SimpleOption | null>(null);
-const selectedColonia = ref<SimpleOption | null>(null);
+const selectedColonia = ref<string | null>(null);
+const coloniaDialog = ref(false);
+const newColonia = ref('');
 let debounceTimer: ReturnType<typeof setTimeout>;
 
-const stateOptions = computed<CascadeGroup[]>(() => {
-    const unique = new Map<number, SimpleOption>();
-
-    for (const result of results.value) {
-        unique.set(result.state.id, { id: result.state.id, name: result.state.name });
+const stateOptions = computed<SimpleOption[]>(() => {
+    const map = new Map<number, SimpleOption>();
+    for (const r of results.value) {
+        map.set(r.state.id, { id: r.state.id, name: r.state.name });
     }
-
-    return unique.size > 0 ? [{ name: 'Estados', items: [...unique.values()] }] : [];
+    return [...map.values()];
 });
 
-const cityOptions = computed<CascadeGroup[]>(() => {
-    if (!selectedState.value) {
-        return [];
+const cityOptions = computed<SimpleOption[]>(() => {
+    if (!selectedState.value) return [];
+    const map = new Map<number, SimpleOption>();
+    for (const r of results.value) {
+        if (r.state.id === selectedState.value.id) {
+            map.set(r.municipality.id, {
+                id: r.municipality.id,
+                name: r.municipality.name,
+            });
+        }
     }
-
-    const unique = new Map<number, SimpleOption>();
-
-    for (const result of results.value.filter((item) => item.state.id === selectedState.value?.id)) {
-        unique.set(result.municipality.id, { id: result.municipality.id, name: result.municipality.name });
-    }
-
-    return unique.size > 0 ? [{ name: selectedState.value.name, items: [...unique.values()] }] : [];
+    return [...map.values()];
 });
 
-const coloniaOptions = computed<CascadeGroup[]>(() => {
-    if (!selectedState.value || !selectedCity.value) {
-        return [];
+const coloniaOptions = computed<string[]>(() => {
+    if (!selectedState.value || !selectedCity.value) return [];
+    const set = new Set<string>();
+    for (const r of results.value) {
+        if (
+            r.state.id === selectedState.value.id &&
+            r.municipality.id === selectedCity.value.id
+        ) {
+            set.add(r.settlement);
+        }
     }
-
-    const unique = new Map<string, SimpleOption>();
-
-    for (const result of results.value.filter(
-        (item) => item.state.id === selectedState.value?.id && item.municipality.id === selectedCity.value?.id,
-    )) {
-        unique.set(result.settlement, { id: result.settlement, name: result.settlement });
-    }
-
-    return unique.size > 0 ? [{ name: selectedCity.value.name, items: [...unique.values()] }] : [];
+    return [...set];
 });
 
 async function fetchPostalData(postalCode: string): Promise<void> {
+    const wasAlreadySet = selectedState.value !== null;
+
+    selectedState.value = null;
+    selectedCity.value = null;
+    selectedColonia.value = null;
+
     if (postalCode.length !== 5) {
         results.value = [];
         return;
@@ -107,57 +120,48 @@ async function fetchPostalData(postalCode: string): Promise<void> {
         }
 
         const json = await response.json();
-        results.value = json.data ?? [];
-        syncFromProps();
+        const data = (json.data ?? []) as PostalCodeResult[];
+        results.value = data;
+
+        if (data.length === 0) return;
+
+        await nextTick();
+
+        const states = stateOptions.value;
+        if (states.length === 1) {
+            selectedState.value = states[0];
+            emit('update:state', states[0].name);
+            await nextTick();
+
+            const cities = cityOptions.value;
+            if (cities.length === 1) {
+                selectedCity.value = cities[0];
+                emit('update:city', cities[0].name);
+            }
+        }
     } finally {
         loading.value = false;
     }
 }
 
-function syncFromProps(): void {
-    selectedState.value = stateOptions.value[0]?.items.find((item) => item.name === props.state)
-        ?? (props.state ? { id: props.state, name: props.state } : null);
-    selectedCity.value = cityOptions.value[0]?.items.find((item) => item.name === props.city)
-        ?? (props.city ? { id: props.city, name: props.city } : null);
-    selectedColonia.value = coloniaOptions.value[0]?.items.find((item) => item.name === props.colonia)
-        ?? (props.colonia ? { id: props.colonia, name: props.colonia } : null);
-
-    if (!selectedState.value && stateOptions.value[0]?.items.length === 1) {
-        onStateChange(stateOptions.value[0].items[0]);
-    }
-
-    if (!selectedCity.value && cityOptions.value[0]?.items.length === 1) {
-        onCityChange(cityOptions.value[0].items[0]);
-    }
-}
-
 function onStateChange(option: SimpleOption | null): void {
-    selectedState.value = option;
+    selectedCity.value = null;
+    selectedColonia.value = null;
     emit('update:state', option?.name ?? '');
-
-    if (selectedCity.value && !cityOptions.value[0]?.items.some((item) => item.id === selectedCity.value?.id)) {
-        onCityChange(null);
-    }
 }
 
 function onCityChange(option: SimpleOption | null): void {
-    selectedCity.value = option;
+    selectedColonia.value = null;
     emit('update:city', option?.name ?? '');
-
-    if (selectedColonia.value && !coloniaOptions.value[0]?.items.some((item) => item.id === selectedColonia.value?.id)) {
-        onColoniaChange(null);
-    }
 }
 
-function onColoniaChange(option: SimpleOption | null): void {
-    selectedColonia.value = option;
-    emit('update:colonia', option?.name ?? '');
+function onColoniaChange(value: string | null): void {
+    selectedColonia.value = value;
+    emit('update:colonia', value ?? '');
 }
 
 function onMunicipalityCreated(payload: Record<string, unknown>): void {
-    if (!selectedState.value) {
-        return;
-    }
+    if (!selectedState.value) return;
 
     const created = payload as { id: number; name: string };
     results.value = [
@@ -166,12 +170,28 @@ function onMunicipalityCreated(payload: Record<string, unknown>): void {
             id: Date.now(),
             code: props.postalCode ?? '',
             settlement: props.colonia || 'Sin colonia',
-            state: { id: Number(selectedState.value.id), name: selectedState.value.name },
+            state: {
+                id: Number(selectedState.value.id),
+                name: selectedState.value.name,
+            },
             municipality: { id: created.id, name: created.name },
         },
     ];
     selectedCity.value = { id: created.id, name: created.name };
     emit('update:city', created.name);
+}
+
+function openColoniaDialog(): void {
+    newColonia.value = '';
+    coloniaDialog.value = true;
+}
+
+function confirmColonia(): void {
+    const name = newColonia.value.trim();
+    if (!name) return;
+    emit('update:colonia', name);
+    selectedColonia.value = name;
+    coloniaDialog.value = false;
 }
 
 watch(
@@ -197,7 +217,9 @@ watch(
                         :model-value="props.postalCode ?? ''"
                         maxlength="5"
                         class="w-full"
-                        @update:model-value="emit('update:postalCode', String($event ?? ''))"
+                        @update:model-value="
+                            emit('update:postalCode', String($event ?? ''))
+                        "
                     />
                 </IconField>
                 <label for="postal_code">Código postal</label>
@@ -207,12 +229,10 @@ watch(
 
         <div class="grid gap-1">
             <FloatLabel variant="on">
-                <CascadeSelect
-                    :model-value="selectedState"
+                <Select
+                    v-model="selectedState"
                     :options="stateOptions"
                     option-label="name"
-                    option-group-label="name"
-                    :option-group-children="['items']"
                     input-id="state"
                     class="w-full"
                     :loading="loading"
@@ -227,12 +247,11 @@ watch(
             <div class="flex gap-2">
                 <div class="min-w-0 flex-1">
                     <FloatLabel variant="on">
-                        <CascadeSelect
-                            :model-value="selectedCity"
+                        <Select
+                            v-model="selectedCity"
                             :options="cityOptions"
+                            :loading="loading"
                             option-label="name"
-                            option-group-label="name"
-                            :option-group-children="['items']"
                             input-id="city"
                             class="w-full"
                             :disabled="!selectedState"
@@ -243,9 +262,12 @@ watch(
                 </div>
 
                 <InlineCatalogCreateDialog
-                    v-if="selectedState"
-                    :endpoint="patientCatalogRoutes.storeMunicipality(clinic).url"
-                    :payload="{ state_id: selectedState.id }"
+                    :endpoint="
+                        patientCatalogRoutes.storeMunicipality(clinic).url
+                    "
+                    :payload="
+                        selectedState ? { state_id: selectedState.id } : {}
+                    "
                     title="Nuevo municipio"
                     description="Agrega un municipio propio de la clínica para este estado."
                     button-label="Agregar municipio"
@@ -256,21 +278,60 @@ watch(
         </div>
 
         <div class="grid gap-1">
-            <FloatLabel variant="on">
-                <CascadeSelect
-                    :model-value="selectedColonia"
-                    :options="coloniaOptions"
-                    option-label="name"
-                    option-group-label="name"
-                    :option-group-children="['items']"
-                    input-id="colonia"
-                    class="w-full"
+            <div class="flex gap-2">
+                <div class="min-w-0 flex-1">
+                    <FloatLabel variant="on">
+                        <Select
+                            v-model="selectedColonia"
+                            :options="coloniaOptions"
+                            :loading="loading"
+                            input-id="colonia"
+                            class="w-full"
+                            :disabled="!selectedCity"
+                            @update:model-value="onColoniaChange($event)"
+                        />
+                        <label for="colonia">Colonia</label>
+                    </FloatLabel>
+                </div>
+
+                <Button
+                    variant="outline"
+                    size="icon-sm"
                     :disabled="!selectedCity"
-                    @update:model-value="onColoniaChange($event)"
-                />
-                <label for="colonia">Colonia</label>
-            </FloatLabel>
+                    v-tooltip.left="'Agregar colonia'"
+                    @click="openColoniaDialog"
+                >
+                    <Plus class="h-4 w-4" />
+                </Button>
+            </div>
             <InputError :message="props.errors?.colonia" />
         </div>
     </div>
+
+    <Dialog :open="coloniaDialog" @update:open="coloniaDialog = $event">
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Agregar colonia</DialogTitle>
+            </DialogHeader>
+            <div class="space-y-4 py-2">
+                <div class="space-y-2">
+                    <Label for="new-colonia">Nombre de la colonia</Label>
+                    <Input
+                        id="new-colonia"
+                        v-model="newColonia"
+                        placeholder="Centro"
+                    />
+                </div>
+            </div>
+            <DialogFooter>
+                <Button variant="outline" @click="coloniaDialog = false"
+                    >Cancelar</Button
+                >
+                <Button :disabled="!newColonia.trim()" @click="confirmColonia">
+                    <Save class="h-4 w-4" />
+                    Agregar
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
 </template>
